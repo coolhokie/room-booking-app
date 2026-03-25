@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Office Room Reservation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Office Operations</p>
+        <h1>Reserve the right room without the email chase.</h1>
+        <p class="hero-text">
+          Browse live room availability, filter by team needs, and book shared spaces in a few clicks.
+        </p>
+        <div class="hero-metrics" id="heroMetrics"></div>
+      </div>
+      <section class="hero-card">
+        <p class="card-label">Next up</p>
+        <h2 id="nextReservationTitle">No upcoming reservations</h2>
+        <p id="nextReservationDetails">Create a booking to populate your office schedule.</p>
+      </section>
+    </header>
+
+    <main class="layout">
+      <section class="panel panel-form">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Book a Space</p>
+            <h2>Create reservation</h2>
+          </div>
+        </div>
+
+        <form id="reservationForm" class="reservation-form">
+          <label>
+            Organizer
+            <input type="text" id="organizer" name="organizer" placeholder="Jordan Lee" required>
+          </label>
+
+          <label>
+            Requester email
+            <input type="email" id="requesterEmail" name="requesterEmail" placeholder="jordan.lee@company.com">
+          </label>
+
+          <label>
+            Team / Purpose
+            <input type="text" id="purpose" name="purpose" placeholder="Weekly design review" required>
+          </label>
+
+          <div class="split">
+            <label>
+              Date
+              <input type="date" id="date" name="date" required>
+            </label>
+
+            <label>
+              Room
+              <select id="room" name="room" required></select>
+            </label>
+          </div>
+
+          <div class="split split-times">
+            <label>
+              Start
+              <input type="time" id="startTime" name="startTime" required>
+            </label>
+
+            <label>
+              End
+              <input type="time" id="endTime" name="endTime" required>
+            </label>
+          </div>
+
+          <div class="split">
+            <label>
+              Expected attendees
+              <input type="number" id="attendees" name="attendees" min="1" value="4" required>
+            </label>
+
+            <label>
+              Feature required
+              <select id="featureFilter" name="featureFilter">
+                <option value="">No preference</option>
+                <option value="Video Conferencing">Video Conferencing</option>
+                <option value="Whiteboard Wall">Whiteboard Wall</option>
+                <option value="Dual Displays">Dual Displays</option>
+                <option value="Accessible">Accessible</option>
+              </select>
+            </label>
+          </div>
+
+          <label>
+            Notes
+            <textarea id="notes" name="notes" rows="3" placeholder="Add meeting context or setup notes."></textarea>
+          </label>
+
+          <p id="formMessage" class="form-message" aria-live="polite"></p>
+
+          <button type="submit" class="primary-button">Reserve room</button>
+        </form>
+      </section>
+
+      <div class="stack">
+        <section class="panel panel-add-room">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Admin</p>
+              <h2>Add room</h2>
+            </div>
+            <p class="subtle">New rooms become bookable right away.</p>
+          </div>
+
+          <form id="roomForm" class="reservation-form">
+            <div class="split">
+              <label>
+                Room name
+                <input type="text" id="roomName" name="roomName" placeholder="Cedar" required>
+              </label>
+
+              <label>
+                Floor
+                <input type="text" id="roomFloor" name="roomFloor" placeholder="Floor 5" required>
+              </label>
+            </div>
+
+            <div class="split">
+              <label>
+                Capacity
+                <input type="number" id="roomCapacity" name="roomCapacity" min="1" value="8" required>
+              </label>
+
+              <label>
+                Features
+                <input type="text" id="roomFeatures" name="roomFeatures" placeholder="Video Conferencing, Accessible">
+              </label>
+            </div>
+
+            <p id="roomFormMessage" class="form-message" aria-live="polite"></p>
+
+            <button type="submit" class="primary-button">Add room</button>
+          </form>
+        </section>
+
+        <section class="panel panel-rooms">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Availability</p>
+              <h2>Room directory</h2>
+            </div>
+            <p class="subtle">Capacity and features update as you adjust the form.</p>
+          </div>
+          <div id="roomGrid" class="room-grid"></div>
+        </section>
+      </div>
+    </main>
+
+    <section class="panel panel-bookings">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Schedule</p>
+          <h2>Upcoming reservations</h2>
+        </div>
+      </div>
+      <div id="bookingList" class="booking-list"></div>
+    </section>
+
+    <section class="panel panel-recovery">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Recovery</p>
+          <h2>Import or export data</h2>
+        </div>
+        <p class="subtle">Use this if you need to recover rooms or reservations from another app version.</p>
+      </div>
+      <div class="recovery-actions">
+        <button id="exportDataButton" class="primary-button" type="button">Export data</button>
+        <label class="ghost-button file-label" for="importDataInput">Import JSON</label>
+        <input id="importDataInput" type="file" accept="application/json" hidden>
+        <button id="importBrowserDataButton" class="ghost-button" type="button">Import browser data</button>
+      </div>
+      <p id="recoveryMessage" class="form-message" aria-live="polite"></p>
+    </section>
+  </div>
+
+  <template id="roomCardTemplate">
+    <article class="room-card">
+      <div class="room-card-top">
+        <div>
+          <p class="room-floor"></p>
+          <h3 class="room-name"></h3>
+        </div>
+        <span class="room-status"></span>
+      </div>
+      <p class="room-capacity"></p>
+      <div class="room-features"></div>
+      <button class="ghost-button room-edit-button" type="button">Edit room</button>
+      <form class="room-edit-form hidden">
+        <div class="split">
+          <label>
+            Room name
+            <input type="text" name="roomName" required>
+          </label>
+          <label>
+            Floor
+            <input type="text" name="roomFloor" required>
+          </label>
+        </div>
+        <div class="split">
+          <label>
+            Capacity
+            <input type="number" name="roomCapacity" min="1" required>
+          </label>
+          <label>
+            Features
+            <input type="text" name="roomFeatures" placeholder="Video Conferencing, Accessible">
+          </label>
+        </div>
+        <p class="form-message room-edit-message" aria-live="polite"></p>
+        <div class="room-edit-actions">
+          <button class="primary-button" type="submit">Save changes</button>
+          <button class="ghost-button room-cancel-button" type="button">Cancel</button>
+        </div>
+      </form>
+    </article>
+  </template>
+
+  <template id="bookingItemTemplate">
+    <article class="booking-item">
+      <div>
+        <p class="booking-time"></p>
+        <h3 class="booking-title"></h3>
+        <p class="booking-meta"></p>
+      </div>
+      <div class="booking-actions">
+        <button class="primary-button booking-email-button" type="button">Email confirmation</button>
+        <button class="ghost-button booking-cancel-button" type="button">Cancel</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
