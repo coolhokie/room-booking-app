@@ -58,6 +58,7 @@ const bookingRoomFilterInput = document.getElementById("bookingRoomFilter");
 const exportBookingsButton = document.getElementById("exportBookingsButton");
 const next24Button = document.getElementById("next24Button");
 const showAllButton = document.getElementById("showAllButton");
+const historyButton = document.getElementById("historyButton");
 const bookingPagination = document.getElementById("bookingPagination");
 const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
 const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
@@ -120,6 +121,7 @@ bookingRoomFilterInput.addEventListener("input", handleBookingFilterChange);
 exportBookingsButton.addEventListener("click", handleExportBookingsToExcel);
 next24Button.addEventListener("click", () => setBookingViewMode("next24"));
 showAllButton.addEventListener("click", () => setBookingViewMode("all"));
+historyButton.addEventListener("click", () => setBookingViewMode("history"));
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tabTarget));
 });
@@ -642,10 +644,17 @@ function renderBookings() {
     const fragment = template.content.cloneNode(true);
     const room = getRoom(booking.roomId);
     const roomName = room ? room.name : "Unknown room";
+    const actions = fragment.querySelector(".booking-actions");
 
     fragment.querySelector(".booking-time").textContent = `${formatDate(booking.date)} - ${formatTime(booking.startTime)} to ${formatTime(booking.endTime)}`;
     fragment.querySelector(".booking-title").textContent = `${roomName} - ${booking.purpose}`;
     fragment.querySelector(".booking-meta").textContent = `${booking.organizer} reserved for ${booking.attendees} attendees${booking.requesterEmail ? ` - ${booking.requesterEmail}` : ""}${booking.notes ? ` - ${booking.notes}` : ""}`;
+
+    if (bookingViewMode === "history") {
+      actions.remove();
+      bookingList.appendChild(fragment);
+      return;
+    }
 
     const cancelButton = fragment.querySelector(".booking-cancel-button");
     cancelButton.addEventListener("click", async () => {
@@ -803,7 +812,6 @@ function getFilteredBookings(options = {}) {
   const { paginate = true } = options;
   const dateFilter = bookingDateFilterInput.value;
   const roomFilter = bookingRoomFilterInput.value;
-  const hasCustomFilter = Boolean(dateFilter || roomFilter || bookingViewMode === "all");
 
   const filtered = sortBookings(bookings).filter((booking) => {
     if (dateFilter && booking.date !== dateFilter) {
@@ -814,7 +822,11 @@ function getFilteredBookings(options = {}) {
       return false;
     }
 
-    if (bookingViewMode === "all" || hasCustomFilter) {
+    if (bookingViewMode === "history") {
+      return isPastReservation(booking);
+    }
+
+    if (bookingViewMode === "all") {
       return isUpcomingReservation(booking);
     }
 
@@ -834,6 +846,12 @@ function isWithinNext24Hours(booking) {
   const start = new Date(`${booking.date}T${booking.startTime}`);
   const twentyFourHoursFromNow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   return start >= now && start <= twentyFourHoursFromNow;
+}
+
+function isPastReservation(booking) {
+  const now = new Date();
+  const end = new Date(`${booking.date}T${booking.endTime}`);
+  return end < now;
 }
 
 function formatDate(dateString) {
@@ -1067,12 +1085,13 @@ function setBookingViewMode(mode) {
 function syncBookingViewButtons() {
   next24Button.classList.toggle("active", bookingViewMode === "next24");
   showAllButton.classList.toggle("active", bookingViewMode === "all");
+  historyButton.classList.toggle("active", bookingViewMode === "history");
 }
 
 function renderBookingPagination(totalItems) {
   bookingPagination.innerHTML = "";
 
-  if (bookingViewMode !== "all") {
+  if (bookingViewMode === "next24") {
     return;
   }
 
