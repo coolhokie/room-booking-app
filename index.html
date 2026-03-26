@@ -28,85 +28,95 @@
     </header>
 
     <main class="layout">
-      <section class="panel panel-form">
-        <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Book a Space</p>
-            <h2>Create reservation</h2>
-          </div>
+      <aside class="panel tabs-panel">
+        <div class="tabs-nav">
+          <button class="tab-button active" type="button" data-tab-target="reserve">Reserve</button>
+          <button class="tab-button" type="button" data-tab-target="add-room">Add Room</button>
+          <button class="tab-button" type="button" data-tab-target="rooms">Rooms</button>
+          <button class="tab-button" type="button" data-tab-target="bookings">Bookings</button>
+          <button class="tab-button" type="button" data-tab-target="recovery">Recovery</button>
         </div>
+      </aside>
 
-        <form id="reservationForm" class="reservation-form">
-          <label>
-            Organizer
-            <input type="text" id="organizer" name="organizer" placeholder="Jordan Lee" required>
-          </label>
-
-          <label>
-            Requester email
-            <input type="email" id="requesterEmail" name="requesterEmail" placeholder="jordan.lee@company.com">
-          </label>
-
-          <label>
-            Team / Purpose
-            <input type="text" id="purpose" name="purpose" placeholder="Weekly design review" required>
-          </label>
-
-          <div class="split">
-            <label>
-              Date
-              <input type="date" id="date" name="date" required>
-            </label>
-
-            <label>
-              Room
-              <select id="room" name="room" required></select>
-            </label>
+      <div class="tab-content">
+        <section class="panel tab-section active" data-tab-panel="reserve">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Book a Space</p>
+              <h2>Create reservation</h2>
+            </div>
           </div>
 
-          <div class="split split-times">
+          <form id="reservationForm" class="reservation-form">
             <label>
-              Start
-              <input type="time" id="startTime" name="startTime" required>
+              Organizer
+              <input type="text" id="organizer" name="organizer" placeholder="Jordan Lee" required>
             </label>
 
             <label>
-              End
-              <input type="time" id="endTime" name="endTime" required>
-            </label>
-          </div>
-
-          <div class="split">
-            <label>
-              Expected attendees
-              <input type="number" id="attendees" name="attendees" min="1" value="4" required>
+              Requester email
+              <input type="email" id="requesterEmail" name="requesterEmail" placeholder="jordan.lee@company.com">
             </label>
 
             <label>
-              Feature required
-              <select id="featureFilter" name="featureFilter">
-                <option value="">No preference</option>
-                <option value="Video Conferencing">Video Conferencing</option>
-                <option value="Whiteboard Wall">Whiteboard Wall</option>
-                <option value="Dual Displays">Dual Displays</option>
-                <option value="Accessible">Accessible</option>
-              </select>
+              Team / Purpose
+              <input type="text" id="purpose" name="purpose" placeholder="Weekly design review" required>
             </label>
-          </div>
 
-          <label>
-            Notes
-            <textarea id="notes" name="notes" rows="3" placeholder="Add meeting context or setup notes."></textarea>
-          </label>
+            <div class="split">
+              <label>
+                Date
+                <input type="date" id="date" name="date" required>
+              </label>
 
-          <p id="formMessage" class="form-message" aria-live="polite"></p>
+              <label>
+                Room
+                <select id="room" name="room" required></select>
+              </label>
+            </div>
 
-          <button type="submit" class="primary-button">Reserve room</button>
-        </form>
-      </section>
+            <div class="split split-times">
+              <label>
+                Start
+                <input type="time" id="startTime" name="startTime" required>
+              </label>
 
-      <div class="stack">
-        <section class="panel panel-add-room">
+              <label>
+                End
+                <input type="time" id="endTime" name="endTime" required>
+              </label>
+            </div>
+
+            <div class="split">
+              <label>
+                Expected attendees
+                <input type="number" id="attendees" name="attendees" min="1" value="4" required>
+              </label>
+
+              <label>
+                Feature required
+                <select id="featureFilter" name="featureFilter">
+                  <option value="">No preference</option>
+                  <option value="Video Conferencing">Video Conferencing</option>
+                  <option value="Whiteboard Wall">Whiteboard Wall</option>
+                  <option value="Dual Displays">Dual Displays</option>
+                  <option value="Accessible">Accessible</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              Notes
+              <textarea id="notes" name="notes" rows="3" placeholder="Add meeting context or setup notes."></textarea>
+            </label>
+
+            <p id="formMessage" class="form-message" aria-live="polite"></p>
+
+            <button type="submit" class="primary-button">Reserve room</button>
+          </form>
+        </section>
+
+        <section class="panel panel-add-room tab-section" data-tab-panel="add-room">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Admin</p>
@@ -146,7 +156,7 @@
           </form>
         </section>
 
-        <section class="panel panel-rooms">
+        <section class="panel panel-rooms tab-section" data-tab-panel="rooms">
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Availability</p>
@@ -156,35 +166,35 @@
           </div>
           <div id="roomGrid" class="room-grid"></div>
         </section>
+
+        <section class="panel panel-bookings tab-section" data-tab-panel="bookings">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Schedule</p>
+              <h2>Upcoming reservations</h2>
+            </div>
+          </div>
+          <div id="bookingList" class="booking-list"></div>
+        </section>
+
+        <section class="panel panel-recovery tab-section" data-tab-panel="recovery">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Recovery</p>
+              <h2>Import or export data</h2>
+            </div>
+            <p class="subtle">Use this if you need to recover rooms or reservations from another app version.</p>
+          </div>
+          <div class="recovery-actions">
+            <button id="exportDataButton" class="primary-button" type="button">Export data</button>
+            <label class="ghost-button file-label" for="importDataInput">Import JSON</label>
+            <input id="importDataInput" type="file" accept="application/json" hidden>
+            <button id="importBrowserDataButton" class="ghost-button" type="button">Import browser data</button>
+          </div>
+          <p id="recoveryMessage" class="form-message" aria-live="polite"></p>
+        </section>
       </div>
     </main>
-
-    <section class="panel panel-bookings">
-      <div class="panel-heading">
-        <div>
-          <p class="eyebrow">Schedule</p>
-          <h2>Upcoming reservations</h2>
-        </div>
-      </div>
-      <div id="bookingList" class="booking-list"></div>
-    </section>
-
-    <section class="panel panel-recovery">
-      <div class="panel-heading">
-        <div>
-          <p class="eyebrow">Recovery</p>
-          <h2>Import or export data</h2>
-        </div>
-        <p class="subtle">Use this if you need to recover rooms or reservations from another app version.</p>
-      </div>
-      <div class="recovery-actions">
-        <button id="exportDataButton" class="primary-button" type="button">Export data</button>
-        <label class="ghost-button file-label" for="importDataInput">Import JSON</label>
-        <input id="importDataInput" type="file" accept="application/json" hidden>
-        <button id="importBrowserDataButton" class="ghost-button" type="button">Import browser data</button>
-      </div>
-      <p id="recoveryMessage" class="form-message" aria-live="polite"></p>
-    </section>
   </div>
 
   <template id="roomCardTemplate">

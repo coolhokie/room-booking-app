@@ -128,14 +128,57 @@ body::before {
 
 .layout {
   display: grid;
-  grid-template-columns: 0.95fr 1.25fr;
+  grid-template-columns: 240px minmax(0, 1fr);
   gap: 24px;
   margin-bottom: 24px;
 }
 
+.tab-content,
 .stack {
   display: grid;
   gap: 24px;
+}
+
+.tabs-panel {
+  padding: 18px;
+  align-self: start;
+  position: sticky;
+  top: 24px;
+}
+
+.tabs-nav {
+  display: grid;
+  gap: 10px;
+}
+
+.tab-button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid rgba(17, 32, 25, 0.08);
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--text);
+  padding: 14px 16px;
+  border-radius: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: white;
+}
+
+.tab-button:hover {
+  transform: translateX(2px);
+}
+
+.tab-section {
+  display: none;
+}
+
+.tab-section.active {
+  display: block;
 }
 
 .panel {
@@ -359,6 +402,14 @@ textarea {
   .hero,
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .tabs-panel {
+    position: static;
+  }
+
+  .tabs-nav {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
 }
 

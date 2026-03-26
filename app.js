@@ -51,6 +51,8 @@ const nextReservationDetails = document.getElementById("nextReservationDetails")
 const exportDataButton = document.getElementById("exportDataButton");
 const importDataInput = document.getElementById("importDataInput");
 const importBrowserDataButton = document.getElementById("importBrowserDataButton");
+const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
+const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
 
 let rooms = defaultRooms.map((room) => ({ ...room }));
 let bookings = seedBookings();
@@ -70,6 +72,9 @@ endTimeInput.addEventListener("change", renderAll);
 exportDataButton.addEventListener("click", handleExportData);
 importDataInput.addEventListener("change", handleImportFile);
 importBrowserDataButton.addEventListener("click", handleImportBrowserData);
+tabButtons.forEach((button) => {
+  button.addEventListener("click", () => setActiveTab(button.dataset.tabTarget));
+});
 
 async function initializeApp() {
   const serverState = await loadServerState();
@@ -827,4 +832,14 @@ function getPersistenceMessage() {
   }
 
   return "Browser storage is active. For shared online data, connect a server-backed store.";
+}
+
+function setActiveTab(tabName) {
+  tabButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.tabTarget === tabName);
+  });
+
+  tabPanels.forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.tabPanel === tabName);
+  });
 }
