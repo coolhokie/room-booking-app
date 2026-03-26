@@ -53,6 +53,7 @@ const importDataInput = document.getElementById("importDataInput");
 const importBrowserDataButton = document.getElementById("importBrowserDataButton");
 const bookingDateFilterInput = document.getElementById("bookingDateFilter");
 const bookingRoomFilterInput = document.getElementById("bookingRoomFilter");
+const exportBookingsButton = document.getElementById("exportBookingsButton");
 const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
 const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
 const floorTabButtons = [...document.querySelectorAll("[data-floor-target]")];
@@ -107,6 +108,7 @@ importDataInput.addEventListener("change", handleImportFile);
 importBrowserDataButton.addEventListener("click", handleImportBrowserData);
 bookingDateFilterInput.addEventListener("input", renderBookings);
 bookingRoomFilterInput.addEventListener("input", renderBookings);
+exportBookingsButton.addEventListener("click", handleExportBookingsToExcel);
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tabTarget));
 });
@@ -268,6 +270,53 @@ function handleExportData() {
   link.remove();
   window.URL.revokeObjectURL(url);
   showRecoveryMessage("Exported current rooms and reservations to a JSON file.", true);
+}
+
+function handleExportBookingsToExcel() {
+  const rows = getFilteredBookings().map((booking) => {
+    const room = getRoom(booking.roomId);
+    return {
+      date: formatLongDate(booking.date),
+      start: formatTime(booking.startTime),
+      end: formatTime(booking.endTime),
+      room: room ? room.name : "Unknown room",
+      floor: room ? room.floor : "Unknown floor",
+      organizer: booking.organizer,
+      requesterEmail: booking.requesterEmail || "",
+      purpose: booking.purpose,
+      attendees: booking.attendees,
+      notes: booking.notes || "",
+    };
+  });
+
+  const header = ["Date", "Start", "End", "Room", "Floor", "Organizer", "Requester Email", "Purpose", "Attendees", "Notes"];
+  const csvLines = [
+    header.join(","),
+    ...rows.map((row) => [
+      row.date,
+      row.start,
+      row.end,
+      row.room,
+      row.floor,
+      row.organizer,
+      row.requesterEmail,
+      row.purpose,
+      row.attendees,
+      row.notes,
+    ].map(escapeCsvValue).join(",")),
+  ];
+
+  const csvContent = "\uFEFF" + csvLines.join("\r\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `bookings-export-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+  showMessage("Exported bookings as an Excel-friendly CSV file.", true);
 }
 
 async function handleImportFile(event) {
@@ -959,6 +1008,15 @@ function compareRoomNames(firstRoom, secondRoom) {
     numeric: true,
     sensitivity: "base",
   });
+}
+
+function escapeCsvValue(value) {
+  const stringValue = String(value ?? "");
+  if (/[",\r\n]/.test(stringValue)) {
+    return `"${stringValue.replace(/"/g, "\"\"")}"`;
+  }
+
+  return stringValue;
 }
 
 function setTheme(themeName) {
