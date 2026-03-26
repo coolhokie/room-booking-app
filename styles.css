@@ -282,6 +282,11 @@ textarea {
   gap: 14px;
 }
 
+.room-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
 .recovery-actions {
   display: flex;
   flex-wrap: wrap;
@@ -306,7 +311,9 @@ textarea {
 
 .room-card {
   display: grid;
-  gap: 14px;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 18px;
   transform: translateY(16px);
   opacity: 0;
   animation: rise 0.45s ease forwards;
@@ -353,19 +360,21 @@ textarea {
 .room-features {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .feature-pill {
-  padding: 8px 10px;
+  padding: 5px 8px;
   border-radius: 999px;
   background: rgba(17, 32, 25, 0.05);
-  font-size: 0.9rem;
+  font-size: 0.78rem;
 }
 
 .room-edit-button {
   justify-self: start;
+  padding: 10px 14px;
+  font-size: 0.9rem;
 }
 
 .room-edit-form {
