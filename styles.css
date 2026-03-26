@@ -324,6 +324,54 @@ textarea {
   margin-bottom: 16px;
 }
 
+.booking-view-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.booking-view-link {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 0;
+  font-family: "Space Grotesk", "Noto Sans KR", sans-serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  cursor: pointer;
+}
+
+.booking-view-link.active {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+}
+
+.booking-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.page-button {
+  border: 1px solid rgba(17, 32, 25, 0.08);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.page-button.active {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: white;
+}
+
 .file-label {
   display: inline-flex;
   align-items: center;

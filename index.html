@@ -176,7 +176,10 @@
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Schedule</p>
-              <h2>Next 24 hours</h2>
+              <div class="booking-view-links">
+                <button id="next24Button" class="booking-view-link active" type="button">Next 24 hours</button>
+                <button id="showAllButton" class="booking-view-link" type="button">Show All</button>
+              </div>
             </div>
             <button id="exportBookingsButton" class="primary-button" type="button">Export bookings to Excel</button>
           </div>
@@ -193,6 +196,7 @@
             </label>
           </div>
           <div id="bookingList" class="booking-list"></div>
+          <div id="bookingPagination" class="booking-pagination"></div>
         </section>
 
         <section class="panel panel-recovery tab-section" data-tab-panel="recovery">

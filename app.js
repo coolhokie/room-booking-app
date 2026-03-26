@@ -54,6 +54,9 @@ const importBrowserDataButton = document.getElementById("importBrowserDataButton
 const bookingDateFilterInput = document.getElementById("bookingDateFilter");
 const bookingRoomFilterInput = document.getElementById("bookingRoomFilter");
 const exportBookingsButton = document.getElementById("exportBookingsButton");
+const next24Button = document.getElementById("next24Button");
+const showAllButton = document.getElementById("showAllButton");
+const bookingPagination = document.getElementById("bookingPagination");
 const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
 const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
 const floorTabButtons = [...document.querySelectorAll("[data-floor-target]")];
@@ -90,6 +93,8 @@ let bookings = seedBookings();
 let persistenceMode = "browser";
 let activeFloor = "Floor 1";
 let activeTheme = loadThemePreference();
+let bookingViewMode = "next24";
+let bookingCurrentPage = 1;
 
 applyTheme(activeTheme);
 initializeReservationDefaults();
@@ -106,9 +111,11 @@ endTimeInput.addEventListener("change", renderAll);
 exportDataButton.addEventListener("click", handleExportData);
 importDataInput.addEventListener("change", handleImportFile);
 importBrowserDataButton.addEventListener("click", handleImportBrowserData);
-bookingDateFilterInput.addEventListener("input", renderBookings);
-bookingRoomFilterInput.addEventListener("input", renderBookings);
+bookingDateFilterInput.addEventListener("input", handleBookingFilterChange);
+bookingRoomFilterInput.addEventListener("input", handleBookingFilterChange);
 exportBookingsButton.addEventListener("click", handleExportBookingsToExcel);
+next24Button.addEventListener("click", () => setBookingViewMode("next24"));
+showAllButton.addEventListener("click", () => setBookingViewMode("all"));
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tabTarget));
 });
@@ -273,7 +280,7 @@ function handleExportData() {
 }
 
 function handleExportBookingsToExcel() {
-  const rows = getFilteredBookings().map((booking) => {
+  const rows = getFilteredBookings({ paginate: false }).map((booking) => {
     const room = getRoom(booking.roomId);
     return {
       date: formatLongDate(booking.date),
@@ -317,6 +324,11 @@ function handleExportBookingsToExcel() {
   link.remove();
   window.URL.revokeObjectURL(url);
   showMessage("Exported bookings as an Excel-friendly CSV file.", true);
+}
+
+function handleBookingFilterChange() {
+  bookingCurrentPage = 1;
+  renderBookings();
 }
 
 async function handleImportFile(event) {
@@ -613,7 +625,10 @@ function renderBookings() {
   const template = document.getElementById("bookingItemTemplate");
   bookingList.innerHTML = "";
 
-  const upcoming = getFilteredBookings();
+  syncBookingViewButtons();
+
+  const filteredBookings = getFilteredBookings({ paginate: false });
+  const upcoming = getFilteredBookings({ paginate: true });
   bookingList.classList.toggle("empty", upcoming.length === 0);
 
   upcoming.forEach((booking) => {
@@ -643,6 +658,8 @@ function renderBookings() {
 
     bookingList.appendChild(fragment);
   });
+
+  renderBookingPagination(filteredBookings.length);
 }
 
 function updateNextReservation() {
@@ -775,12 +792,13 @@ function isUpcomingReservation(booking) {
   return end >= now;
 }
 
-function getFilteredBookings() {
+function getFilteredBookings(options = {}) {
+  const { paginate = true } = options;
   const dateFilter = bookingDateFilterInput.value;
   const roomFilter = bookingRoomFilterInput.value;
-  const hasCustomFilter = Boolean(dateFilter || roomFilter);
+  const hasCustomFilter = Boolean(dateFilter || roomFilter || bookingViewMode === "all");
 
-  return sortBookings(bookings).filter((booking) => {
+  const filtered = sortBookings(bookings).filter((booking) => {
     if (dateFilter && booking.date !== dateFilter) {
       return false;
     }
@@ -789,12 +807,19 @@ function getFilteredBookings() {
       return false;
     }
 
-    if (hasCustomFilter) {
+    if (bookingViewMode === "all" || hasCustomFilter) {
       return isUpcomingReservation(booking);
     }
 
     return isWithinNext24Hours(booking);
   });
+
+  if (!paginate) {
+    return filtered;
+  }
+
+  const startIndex = (bookingCurrentPage - 1) * 10;
+  return filtered.slice(startIndex, startIndex + 10);
 }
 
 function isWithinNext24Hours(booking) {
@@ -1017,6 +1042,47 @@ function escapeCsvValue(value) {
   }
 
   return stringValue;
+}
+
+function setBookingViewMode(mode) {
+  bookingViewMode = mode;
+  bookingCurrentPage = 1;
+  renderBookings();
+}
+
+function syncBookingViewButtons() {
+  next24Button.classList.toggle("active", bookingViewMode === "next24");
+  showAllButton.classList.toggle("active", bookingViewMode === "all");
+}
+
+function renderBookingPagination(totalItems) {
+  bookingPagination.innerHTML = "";
+
+  if (bookingViewMode !== "all") {
+    return;
+  }
+
+  const totalPages = Math.ceil(totalItems / 10);
+  if (totalPages <= 1) {
+    return;
+  }
+
+  if (bookingCurrentPage > totalPages) {
+    bookingCurrentPage = totalPages;
+  }
+
+  for (let page = 1; page <= totalPages; page += 1) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "page-button";
+    button.textContent = String(page);
+    button.classList.toggle("active", page === bookingCurrentPage);
+    button.addEventListener("click", () => {
+      bookingCurrentPage = page;
+      renderBookings();
+    });
+    bookingPagination.appendChild(button);
+  }
 }
 
 function setTheme(themeName) {
