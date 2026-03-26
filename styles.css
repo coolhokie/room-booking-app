@@ -519,6 +519,12 @@ textarea {
   font-size: 0.9rem;
 }
 
+.room-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .room-edit-form {
   display: grid;
   gap: 14px;

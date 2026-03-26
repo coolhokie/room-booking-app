@@ -554,6 +554,7 @@ function renderRooms() {
     const card = fragment.querySelector(".room-card");
     const status = fragment.querySelector(".room-status");
     const editButton = fragment.querySelector(".room-edit-button");
+    const reserveButton = fragment.querySelector(".room-reserve-button");
     const editForm = fragment.querySelector(".room-edit-form");
     const editMessage = fragment.querySelector(".room-edit-message");
     const available = !roomHasConflict(room.id);
@@ -570,6 +571,8 @@ function renderRooms() {
     } else if (available) {
       status.textContent = "Available";
       status.className = "room-status available";
+      reserveButton.classList.remove("hidden");
+      reserveButton.addEventListener("click", () => quickReserveRoom(room.id));
     } else {
       status.textContent = "Busy";
       status.className = "room-status busy";
@@ -1006,6 +1009,13 @@ function setActiveTab(tabName) {
   tabPanels.forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.tabPanel === tabName);
   });
+}
+
+function quickReserveRoom(roomId) {
+  setActiveTab("reserve");
+  roomSelect.value = roomId;
+  formMessage.textContent = "";
+  roomSelect.focus();
 }
 
 function setActiveFloor(floorName) {
