@@ -53,10 +53,12 @@ const importDataInput = document.getElementById("importDataInput");
 const importBrowserDataButton = document.getElementById("importBrowserDataButton");
 const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
 const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
+const floorTabButtons = [...document.querySelectorAll("[data-floor-target]")];
 
 let rooms = defaultRooms.map((room) => ({ ...room }));
 let bookings = seedBookings();
 let persistenceMode = "browser";
+let activeFloor = "Floor 1";
 
 initializeReservationDefaults();
 renderAll();
@@ -74,6 +76,9 @@ importDataInput.addEventListener("change", handleImportFile);
 importBrowserDataButton.addEventListener("click", handleImportBrowserData);
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tabTarget));
+});
+floorTabButtons.forEach((button) => {
+  button.addEventListener("click", () => setActiveFloor(button.dataset.floorTarget));
 });
 
 async function initializeApp() {
@@ -439,8 +444,11 @@ function renderMetrics() {
 function renderRooms() {
   const template = document.getElementById("roomCardTemplate");
   roomGrid.innerHTML = "";
+  syncFloorTabs();
 
-  rooms.forEach((room, index) => {
+  const visibleRooms = rooms.filter((room) => room.floor === activeFloor);
+
+  visibleRooms.forEach((room, index) => {
     const fragment = template.content.cloneNode(true);
     const card = fragment.querySelector(".room-card");
     const status = fragment.querySelector(".room-status");
@@ -841,5 +849,25 @@ function setActiveTab(tabName) {
 
   tabPanels.forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.tabPanel === tabName);
+  });
+}
+
+function setActiveFloor(floorName) {
+  activeFloor = floorName;
+  renderRooms();
+}
+
+function syncFloorTabs() {
+  const availableFloors = [...new Set(rooms.map((room) => room.floor))];
+  if (!availableFloors.includes(activeFloor)) {
+    activeFloor = availableFloors[0] || "Floor 1";
+  }
+
+  floorTabButtons.forEach((button) => {
+    const floorName = button.dataset.floorTarget;
+    const available = availableFloors.includes(floorName);
+    button.classList.toggle("active", floorName === activeFloor);
+    button.disabled = !available;
+    button.hidden = !available;
   });
 }
