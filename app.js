@@ -51,6 +51,8 @@ const nextReservationDetails = document.getElementById("nextReservationDetails")
 const exportDataButton = document.getElementById("exportDataButton");
 const importDataInput = document.getElementById("importDataInput");
 const importBrowserDataButton = document.getElementById("importBrowserDataButton");
+const bookingDateFilterInput = document.getElementById("bookingDateFilter");
+const bookingRoomFilterInput = document.getElementById("bookingRoomFilter");
 const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
 const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
 const floorTabButtons = [...document.querySelectorAll("[data-floor-target]")];
@@ -74,6 +76,8 @@ endTimeInput.addEventListener("change", renderAll);
 exportDataButton.addEventListener("click", handleExportData);
 importDataInput.addEventListener("change", handleImportFile);
 importBrowserDataButton.addEventListener("click", handleImportBrowserData);
+bookingDateFilterInput.addEventListener("input", renderBookings);
+bookingRoomFilterInput.addEventListener("input", renderBookings);
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tabTarget));
 });
@@ -526,7 +530,7 @@ function renderBookings() {
   const template = document.getElementById("bookingItemTemplate");
   bookingList.innerHTML = "";
 
-  const upcoming = sortBookings(bookings).filter(isUpcomingReservation);
+  const upcoming = getFilteredBookings();
   bookingList.classList.toggle("empty", upcoming.length === 0);
 
   upcoming.forEach((booking) => {
@@ -673,6 +677,38 @@ function isUpcomingReservation(booking) {
   const now = new Date();
   const end = new Date(`${booking.date}T${booking.endTime}`);
   return end >= now;
+}
+
+function getFilteredBookings() {
+  const dateFilter = bookingDateFilterInput.value;
+  const roomFilter = bookingRoomFilterInput.value.trim().toLowerCase();
+  const hasCustomFilter = Boolean(dateFilter || roomFilter);
+
+  return sortBookings(bookings).filter((booking) => {
+    const room = getRoom(booking.roomId);
+    const roomName = room ? room.name.toLowerCase() : "";
+
+    if (dateFilter && booking.date !== dateFilter) {
+      return false;
+    }
+
+    if (roomFilter && !roomName.includes(roomFilter)) {
+      return false;
+    }
+
+    if (hasCustomFilter) {
+      return isUpcomingReservation(booking);
+    }
+
+    return isWithinNext24Hours(booking);
+  });
+}
+
+function isWithinNext24Hours(booking) {
+  const now = new Date();
+  const start = new Date(`${booking.date}T${booking.startTime}`);
+  const twentyFourHoursFromNow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  return start >= now && start <= twentyFourHoursFromNow;
 }
 
 function formatDate(dateString) {

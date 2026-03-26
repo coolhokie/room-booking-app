@@ -175,8 +175,18 @@
           <div class="panel-heading">
             <div>
               <p class="eyebrow">Schedule</p>
-              <h2>Upcoming reservations</h2>
+              <h2>Next 24 hours</h2>
             </div>
+          </div>
+          <div class="booking-filters">
+            <label>
+              Date
+              <input type="date" id="bookingDateFilter" name="bookingDateFilter">
+            </label>
+            <label>
+              Room name
+              <input type="text" id="bookingRoomFilter" name="bookingRoomFilter" placeholder="Search room">
+            </label>
           </div>
           <div id="bookingList" class="booking-list"></div>
         </section>
