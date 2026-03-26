@@ -48,6 +48,8 @@ const bookingList = document.getElementById("bookingList");
 const heroMetrics = document.getElementById("heroMetrics");
 const nextReservationTitle = document.getElementById("nextReservationTitle");
 const nextReservationDetails = document.getElementById("nextReservationDetails");
+const liveDateTime = document.getElementById("liveDateTime");
+const liveWeatherDetails = document.getElementById("liveWeatherDetails");
 const exportDataButton = document.getElementById("exportDataButton");
 const importDataInput = document.getElementById("importDataInput");
 const importBrowserDataButton = document.getElementById("importBrowserDataButton");
@@ -100,6 +102,8 @@ applyTheme(activeTheme);
 initializeReservationDefaults();
 renderAll();
 initializeApp();
+startLiveClock();
+loadCentrevilleWeather();
 
 reservationForm.addEventListener("submit", handleReservationSubmit);
 roomForm.addEventListener("submit", handleRoomSubmit);
@@ -1137,4 +1141,74 @@ function showSettingsMessage(message, success = false) {
 
 function capitalize(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function startLiveClock() {
+  updateLiveDateTime();
+  window.setInterval(updateLiveDateTime, 1000);
+}
+
+function updateLiveDateTime() {
+  const now = new Date();
+  liveDateTime.textContent = new Intl.DateTimeFormat(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    timeZone: "America/New_York",
+  }).format(now);
+}
+
+async function loadCentrevilleWeather() {
+  try {
+    const response = await window.fetch("https://api.open-meteo.com/v1/forecast?latitude=38.840349&longitude=-77.428901&current=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=America%2FNew_York");
+    if (!response.ok) {
+      throw new Error("Weather request failed");
+    }
+
+    const payload = await response.json();
+    const current = payload.current || {};
+    const temperature = current.temperature_2m;
+    const weatherCode = current.weather_code;
+    liveWeatherDetails.textContent = `${getWeatherLabel(weatherCode)} - ${temperature}\u00B0F`;
+  } catch {
+    liveWeatherDetails.textContent = "Weather unavailable right now.";
+  }
+}
+
+function getWeatherLabel(weatherCode) {
+  const labels = {
+    0: "Clear",
+    1: "Mainly clear",
+    2: "Partly cloudy",
+    3: "Overcast",
+    45: "Fog",
+    48: "Rime fog",
+    51: "Light drizzle",
+    53: "Drizzle",
+    55: "Dense drizzle",
+    56: "Freezing drizzle",
+    57: "Heavy freezing drizzle",
+    61: "Light rain",
+    63: "Rain",
+    65: "Heavy rain",
+    66: "Freezing rain",
+    67: "Heavy freezing rain",
+    71: "Light snow",
+    73: "Snow",
+    75: "Heavy snow",
+    77: "Snow grains",
+    80: "Rain showers",
+    81: "Heavy showers",
+    82: "Violent showers",
+    85: "Snow showers",
+    86: "Heavy snow showers",
+    95: "Thunderstorm",
+    96: "Thunderstorm with hail",
+    99: "Severe thunderstorm",
+  };
+
+  return labels[weatherCode] || "Current conditions";
 }
