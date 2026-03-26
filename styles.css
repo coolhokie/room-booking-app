@@ -12,34 +12,6 @@
   --shadow: 0 20px 45px rgba(27, 43, 36, 0.12);
 }
 
-body[data-theme="ocean"] {
-  --bg: #eaf4f7;
-  --panel: rgba(248, 252, 255, 0.86);
-  --panel-strong: #f9fdff;
-  --text: #102333;
-  --muted: #5c7382;
-  --line: rgba(16, 35, 51, 0.08);
-  --accent: #0f7aa8;
-  --accent-strong: #085c80;
-  --warm: #4ca7c7;
-  --danger: #9b3d38;
-  --shadow: 0 20px 45px rgba(16, 35, 51, 0.12);
-}
-
-body[data-theme="sunset"] {
-  --bg: #fbefe8;
-  --panel: rgba(255, 249, 245, 0.88);
-  --panel-strong: #fffaf7;
-  --text: #2a1a1f;
-  --muted: #775860;
-  --line: rgba(42, 26, 31, 0.08);
-  --accent: #c85b3c;
-  --accent-strong: #9f4026;
-  --warm: #e48d45;
-  --danger: #9d3146;
-  --shadow: 0 20px 45px rgba(42, 26, 31, 0.12);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -402,6 +374,26 @@ textarea {
 .theme-sunset {
   background: linear-gradient(135deg, #c85b3c 0%, #e7ab4f 100%);
 }
+
+.theme-forest { background: linear-gradient(135deg, #1d6b45 0%, #7dbb74 100%); }
+.theme-midnight { background: linear-gradient(135deg, #1c2742 0%, #435b8f 100%); }
+.theme-rose { background: linear-gradient(135deg, #c04d73 0%, #f0a6bc 100%); }
+.theme-mint { background: linear-gradient(135deg, #2b8f7a 0%, #a8ead6 100%); }
+.theme-amber { background: linear-gradient(135deg, #a95b12 0%, #f2c45b 100%); }
+.theme-slate { background: linear-gradient(135deg, #475569 0%, #a7b4c3 100%); }
+.theme-berry { background: linear-gradient(135deg, #7a244f 0%, #d36a9b 100%); }
+.theme-sand { background: linear-gradient(135deg, #c8a77a 0%, #f2dfbf 100%); }
+.theme-lagoon { background: linear-gradient(135deg, #127a8a 0%, #8de1ea 100%); }
+.theme-orchard { background: linear-gradient(135deg, #7b9d2d 0%, #f0b54d 100%); }
+.theme-copper { background: linear-gradient(135deg, #8f4e35 0%, #d49a6a 100%); }
+.theme-aurora { background: linear-gradient(135deg, #0c7b93 0%, #8b63d9 100%); }
+.theme-coral { background: linear-gradient(135deg, #d86457 0%, #f5b39a 100%); }
+.theme-graphite { background: linear-gradient(135deg, #2c3440 0%, #7b8896 100%); }
+.theme-meadow { background: linear-gradient(135deg, #3f8d44 0%, #b8db7a 100%); }
+.theme-ruby { background: linear-gradient(135deg, #8f1735 0%, #e45a76 100%); }
+.theme-sky { background: linear-gradient(135deg, #4f8edb 0%, #b8dbff 100%); }
+.theme-olive { background: linear-gradient(135deg, #667232 0%, #c0cb7f 100%); }
+.theme-plum { background: linear-gradient(135deg, #5a2b63 0%, #be87c9 100%); }
 
 .room-card,
 .booking-item {

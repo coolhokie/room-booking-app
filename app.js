@@ -59,6 +59,31 @@ const floorTabButtons = [...document.querySelectorAll("[data-floor-target]")];
 const themeButtons = [...document.querySelectorAll("[data-theme]")];
 const settingsMessage = document.getElementById("settingsMessage");
 
+const themeDefinitions = {
+  earth: { bg: "#f5efe6", panel: "rgba(255, 251, 245, 0.85)", panelStrong: "#fffaf2", text: "#112019", muted: "#5d6f67", line: "rgba(17, 32, 25, 0.08)", accent: "#0b6e4f", accentStrong: "#064e38", warm: "#d97d54", danger: "#9f3a2f", shadow: "0 20px 45px rgba(27, 43, 36, 0.12)" },
+  ocean: { bg: "#eaf4f7", panel: "rgba(248, 252, 255, 0.86)", panelStrong: "#f9fdff", text: "#102333", muted: "#5c7382", line: "rgba(16, 35, 51, 0.08)", accent: "#0f7aa8", accentStrong: "#085c80", warm: "#4ca7c7", danger: "#9b3d38", shadow: "0 20px 45px rgba(16, 35, 51, 0.12)" },
+  sunset: { bg: "#fbefe8", panel: "rgba(255, 249, 245, 0.88)", panelStrong: "#fffaf7", text: "#2a1a1f", muted: "#775860", line: "rgba(42, 26, 31, 0.08)", accent: "#c85b3c", accentStrong: "#9f4026", warm: "#e48d45", danger: "#9d3146", shadow: "0 20px 45px rgba(42, 26, 31, 0.12)" },
+  forest: { bg: "#edf4ee", panel: "rgba(248, 252, 248, 0.88)", panelStrong: "#fbfffb", text: "#13261a", muted: "#617263", line: "rgba(19, 38, 26, 0.08)", accent: "#1d6b45", accentStrong: "#145334", warm: "#7aa36b", danger: "#8d3f35", shadow: "0 20px 45px rgba(19, 38, 26, 0.12)" },
+  midnight: { bg: "#e9edf6", panel: "rgba(244, 247, 255, 0.86)", panelStrong: "#f9fbff", text: "#182238", muted: "#62708b", line: "rgba(24, 34, 56, 0.08)", accent: "#314a88", accentStrong: "#243867", warm: "#5c75b5", danger: "#a3464e", shadow: "0 20px 45px rgba(24, 34, 56, 0.12)" },
+  rose: { bg: "#fbf0f4", panel: "rgba(255, 249, 251, 0.88)", panelStrong: "#fffdfd", text: "#2c1821", muted: "#7d5d6a", line: "rgba(44, 24, 33, 0.08)", accent: "#c04d73", accentStrong: "#973857", warm: "#e395aa", danger: "#9c314d", shadow: "0 20px 45px rgba(44, 24, 33, 0.12)" },
+  mint: { bg: "#ecf8f4", panel: "rgba(248, 255, 252, 0.88)", panelStrong: "#fbfffd", text: "#142822", muted: "#5f7b73", line: "rgba(20, 40, 34, 0.08)", accent: "#2b8f7a", accentStrong: "#1f6f5f", warm: "#68bfa7", danger: "#9d4444", shadow: "0 20px 45px rgba(20, 40, 34, 0.12)" },
+  amber: { bg: "#fbf4e7", panel: "rgba(255, 251, 242, 0.9)", panelStrong: "#fffdf7", text: "#2d2212", muted: "#7f6840", line: "rgba(45, 34, 18, 0.08)", accent: "#b86a17", accentStrong: "#8f5010", warm: "#e2ab3f", danger: "#9a4232", shadow: "0 20px 45px rgba(45, 34, 18, 0.12)" },
+  slate: { bg: "#eef2f5", panel: "rgba(250, 252, 255, 0.88)", panelStrong: "#ffffff", text: "#18212b", muted: "#687482", line: "rgba(24, 33, 43, 0.08)", accent: "#526377", accentStrong: "#3f4d5e", warm: "#8d9db0", danger: "#93454a", shadow: "0 20px 45px rgba(24, 33, 43, 0.12)" },
+  berry: { bg: "#f8edf3", panel: "rgba(255, 249, 252, 0.88)", panelStrong: "#fffdfd", text: "#2a1624", muted: "#77566f", line: "rgba(42, 22, 36, 0.08)", accent: "#8a2958", accentStrong: "#681d42", warm: "#c75b8a", danger: "#9a2e43", shadow: "0 20px 45px rgba(42, 22, 36, 0.12)" },
+  sand: { bg: "#f7f1e7", panel: "rgba(255, 252, 245, 0.88)", panelStrong: "#fffdf9", text: "#2c2418", muted: "#7f7059", line: "rgba(44, 36, 24, 0.08)", accent: "#9b7b52", accentStrong: "#775d3d", warm: "#d0b287", danger: "#9d4b39", shadow: "0 20px 45px rgba(44, 36, 24, 0.12)" },
+  lagoon: { bg: "#ebf9fa", panel: "rgba(247, 255, 255, 0.88)", panelStrong: "#fbffff", text: "#102629", muted: "#5c7b80", line: "rgba(16, 38, 41, 0.08)", accent: "#127a8a", accentStrong: "#0d5c68", warm: "#59bccc", danger: "#984444", shadow: "0 20px 45px rgba(16, 38, 41, 0.12)" },
+  orchard: { bg: "#f6f5e8", panel: "rgba(255, 255, 247, 0.88)", panelStrong: "#fffffb", text: "#232713", muted: "#707756", line: "rgba(35, 39, 19, 0.08)", accent: "#7b9d2d", accentStrong: "#607b21", warm: "#d39a38", danger: "#974537", shadow: "0 20px 45px rgba(35, 39, 19, 0.12)" },
+  copper: { bg: "#f7eee9", panel: "rgba(255, 249, 246, 0.88)", panelStrong: "#fffdfb", text: "#2c1d19", muted: "#80645c", line: "rgba(44, 29, 25, 0.08)", accent: "#8f4e35", accentStrong: "#703b27", warm: "#c87e59", danger: "#96383b", shadow: "0 20px 45px rgba(44, 29, 25, 0.12)" },
+  aurora: { bg: "#eef2fb", panel: "rgba(248, 250, 255, 0.88)", panelStrong: "#fcfdff", text: "#182035", muted: "#676f88", line: "rgba(24, 32, 53, 0.08)", accent: "#0c7b93", accentStrong: "#0a5e70", warm: "#8b63d9", danger: "#9a3d66", shadow: "0 20px 45px rgba(24, 32, 53, 0.12)" },
+  coral: { bg: "#fff0ec", panel: "rgba(255, 250, 248, 0.9)", panelStrong: "#fffdfc", text: "#2e1a18", muted: "#835f59", line: "rgba(46, 26, 24, 0.08)", accent: "#d86457", accentStrong: "#af4b40", warm: "#eda184", danger: "#a33e49", shadow: "0 20px 45px rgba(46, 26, 24, 0.12)" },
+  graphite: { bg: "#eef0f2", panel: "rgba(248, 250, 252, 0.88)", panelStrong: "#fcfdff", text: "#1d242c", muted: "#69727b", line: "rgba(29, 36, 44, 0.08)", accent: "#3e4b5b", accentStrong: "#2f3946", warm: "#7c8b99", danger: "#94454f", shadow: "0 20px 45px rgba(29, 36, 44, 0.12)" },
+  meadow: { bg: "#f0f7ea", panel: "rgba(251, 255, 247, 0.88)", panelStrong: "#fdfff9", text: "#1c2615", muted: "#6a7658", line: "rgba(28, 38, 21, 0.08)", accent: "#4c9444", accentStrong: "#397133", warm: "#9ac45e", danger: "#97423b", shadow: "0 20px 45px rgba(28, 38, 21, 0.12)" },
+  ruby: { bg: "#faedf1", panel: "rgba(255, 249, 251, 0.88)", panelStrong: "#fffdfd", text: "#2c141c", muted: "#7b5563", line: "rgba(44, 20, 28, 0.08)", accent: "#a11f43", accentStrong: "#7f1835", warm: "#d95c7b", danger: "#8d2439", shadow: "0 20px 45px rgba(44, 20, 28, 0.12)" },
+  sky: { bg: "#edf6ff", panel: "rgba(248, 252, 255, 0.9)", panelStrong: "#fcfeff", text: "#162334", muted: "#62788f", line: "rgba(22, 35, 52, 0.08)", accent: "#4f8edb", accentStrong: "#3b71b0", warm: "#83b5ee", danger: "#9a4750", shadow: "0 20px 45px rgba(22, 35, 52, 0.12)" },
+  olive: { bg: "#f3f4e8", panel: "rgba(254, 255, 248, 0.88)", panelStrong: "#fffffb", text: "#232615", muted: "#70755b", line: "rgba(35, 38, 21, 0.08)", accent: "#6c7633", accentStrong: "#545d27", warm: "#adb86a", danger: "#92463a", shadow: "0 20px 45px rgba(35, 38, 21, 0.12)" },
+  plum: { bg: "#f6eef8", panel: "rgba(252, 249, 255, 0.88)", panelStrong: "#fffdfd", text: "#29192f", muted: "#755f7b", line: "rgba(41, 25, 47, 0.08)", accent: "#6f3b79", accentStrong: "#552c5d", warm: "#b07ec2", danger: "#953c56", shadow: "0 20px 45px rgba(41, 25, 47, 0.12)" },
+};
+
 let rooms = defaultRooms.map((room) => ({ ...room }));
 let bookings = seedBookings();
 let persistenceMode = "browser";
@@ -944,14 +969,27 @@ function setTheme(themeName) {
 }
 
 function applyTheme(themeName) {
+  const theme = themeDefinitions[themeName] || themeDefinitions.earth;
   document.body.dataset.theme = themeName;
+  document.documentElement.style.setProperty("--bg", theme.bg);
+  document.documentElement.style.setProperty("--panel", theme.panel);
+  document.documentElement.style.setProperty("--panel-strong", theme.panelStrong);
+  document.documentElement.style.setProperty("--text", theme.text);
+  document.documentElement.style.setProperty("--muted", theme.muted);
+  document.documentElement.style.setProperty("--line", theme.line);
+  document.documentElement.style.setProperty("--accent", theme.accent);
+  document.documentElement.style.setProperty("--accent-strong", theme.accentStrong);
+  document.documentElement.style.setProperty("--warm", theme.warm);
+  document.documentElement.style.setProperty("--danger", theme.danger);
+  document.documentElement.style.setProperty("--shadow", theme.shadow);
   themeButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.theme === themeName);
   });
 }
 
 function loadThemePreference() {
-  return window.localStorage.getItem("room-booking-theme") || "earth";
+  const savedTheme = window.localStorage.getItem("room-booking-theme") || "earth";
+  return themeDefinitions[savedTheme] ? savedTheme : "earth";
 }
 
 function saveThemePreference(themeName) {
