@@ -56,12 +56,16 @@ const bookingRoomFilterInput = document.getElementById("bookingRoomFilter");
 const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
 const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
 const floorTabButtons = [...document.querySelectorAll("[data-floor-target]")];
+const themeButtons = [...document.querySelectorAll("[data-theme]")];
+const settingsMessage = document.getElementById("settingsMessage");
 
 let rooms = defaultRooms.map((room) => ({ ...room }));
 let bookings = seedBookings();
 let persistenceMode = "browser";
 let activeFloor = "Floor 1";
+let activeTheme = loadThemePreference();
 
+applyTheme(activeTheme);
 initializeReservationDefaults();
 renderAll();
 initializeApp();
@@ -83,6 +87,9 @@ tabButtons.forEach((button) => {
 });
 floorTabButtons.forEach((button) => {
   button.addEventListener("click", () => setActiveFloor(button.dataset.floorTarget));
+});
+themeButtons.forEach((button) => {
+  button.addEventListener("click", () => setTheme(button.dataset.theme));
 });
 
 async function initializeApp() {
@@ -927,4 +934,35 @@ function compareRoomNames(firstRoom, secondRoom) {
     numeric: true,
     sensitivity: "base",
   });
+}
+
+function setTheme(themeName) {
+  activeTheme = themeName;
+  applyTheme(themeName);
+  saveThemePreference(themeName);
+  showSettingsMessage(`Theme changed to ${capitalize(themeName)}.`, true);
+}
+
+function applyTheme(themeName) {
+  document.body.dataset.theme = themeName;
+  themeButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.theme === themeName);
+  });
+}
+
+function loadThemePreference() {
+  return window.localStorage.getItem("room-booking-theme") || "earth";
+}
+
+function saveThemePreference(themeName) {
+  window.localStorage.setItem("room-booking-theme", themeName);
+}
+
+function showSettingsMessage(message, success = false) {
+  settingsMessage.textContent = message;
+  settingsMessage.classList.toggle("success", success);
+}
+
+function capitalize(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }

@@ -35,6 +35,7 @@
           <button class="tab-button" type="button" data-tab-target="rooms">Rooms</button>
           <button class="tab-button" type="button" data-tab-target="bookings">Bookings</button>
           <button class="tab-button" type="button" data-tab-target="recovery">Recovery</button>
+          <button class="tab-button" type="button" data-tab-target="settings">Settings</button>
         </div>
       </aside>
 
@@ -208,6 +209,34 @@
             <button id="importBrowserDataButton" class="ghost-button" type="button">Import browser data</button>
           </div>
           <p id="recoveryMessage" class="form-message" aria-live="polite"></p>
+        </section>
+
+        <section class="panel panel-settings tab-section" data-tab-panel="settings">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Appearance</p>
+              <h2>Settings</h2>
+            </div>
+            <p class="subtle">Change the overall look and feel of the workspace.</p>
+          </div>
+          <div class="theme-options" id="themeOptions">
+            <button class="theme-card active" type="button" data-theme="earth">
+              <span class="theme-swatch theme-earth"></span>
+              <strong>Earth</strong>
+              <span>Warm and grounded</span>
+            </button>
+            <button class="theme-card" type="button" data-theme="ocean">
+              <span class="theme-swatch theme-ocean"></span>
+              <strong>Ocean</strong>
+              <span>Crisp and cool</span>
+            </button>
+            <button class="theme-card" type="button" data-theme="sunset">
+              <span class="theme-swatch theme-sunset"></span>
+              <strong>Sunset</strong>
+              <span>Bright and energetic</span>
+            </button>
+          </div>
+          <p id="settingsMessage" class="form-message" aria-live="polite"></p>
         </section>
       </div>
     </main>
