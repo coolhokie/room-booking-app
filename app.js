@@ -107,6 +107,7 @@ async function initializeApp() {
   }
 
   renderAll();
+  populateBookingRoomFilter();
   showRoomMessage(getPersistenceMessage(), true);
 }
 
@@ -426,6 +427,7 @@ function renderAll() {
   renderBookings();
   updateNextReservation();
   updateRoomOptions();
+  populateBookingRoomFilter();
 }
 
 function renderMetrics() {
@@ -597,6 +599,19 @@ function updateRoomOptions() {
   }
 }
 
+function populateBookingRoomFilter() {
+  const currentValue = bookingRoomFilterInput.value;
+  const sortedRooms = [...rooms].sort(compareRoomNames);
+
+  bookingRoomFilterInput.innerHTML = [
+    '<option value="">All rooms</option>',
+    ...sortedRooms.map((room) => `<option value="${room.id}">${room.name}</option>`),
+  ].join("");
+
+  const stillExists = [...bookingRoomFilterInput.options].some((option) => option.value === currentValue);
+  bookingRoomFilterInput.value = stillExists ? currentValue : "";
+}
+
 function parseFeatures(rawValue) {
   return rawValue
     .split(",")
@@ -681,18 +696,15 @@ function isUpcomingReservation(booking) {
 
 function getFilteredBookings() {
   const dateFilter = bookingDateFilterInput.value;
-  const roomFilter = bookingRoomFilterInput.value.trim().toLowerCase();
+  const roomFilter = bookingRoomFilterInput.value;
   const hasCustomFilter = Boolean(dateFilter || roomFilter);
 
   return sortBookings(bookings).filter((booking) => {
-    const room = getRoom(booking.roomId);
-    const roomName = room ? room.name.toLowerCase() : "";
-
     if (dateFilter && booking.date !== dateFilter) {
       return false;
     }
 
-    if (roomFilter && !roomName.includes(roomFilter)) {
+    if (roomFilter && booking.roomId !== roomFilter) {
       return false;
     }
 
