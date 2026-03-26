@@ -640,8 +640,8 @@ function renderBookings() {
     const roomName = room ? room.name : "Unknown room";
 
     fragment.querySelector(".booking-time").textContent = `${formatDate(booking.date)} - ${formatTime(booking.startTime)} to ${formatTime(booking.endTime)}`;
-    fragment.querySelector(".booking-title").textContent = booking.purpose;
-    fragment.querySelector(".booking-meta").textContent = `${booking.organizer} reserved ${roomName} for ${booking.attendees} attendees${booking.requesterEmail ? ` - ${booking.requesterEmail}` : ""}${booking.notes ? ` - ${booking.notes}` : ""}`;
+    fragment.querySelector(".booking-title").textContent = `${roomName} - ${booking.purpose}`;
+    fragment.querySelector(".booking-meta").textContent = `${booking.organizer} reserved for ${booking.attendees} attendees${booking.requesterEmail ? ` - ${booking.requesterEmail}` : ""}${booking.notes ? ` - ${booking.notes}` : ""}`;
 
     const cancelButton = fragment.querySelector(".booking-cancel-button");
     cancelButton.addEventListener("click", async () => {

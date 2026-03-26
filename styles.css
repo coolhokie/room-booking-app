@@ -331,22 +331,22 @@ textarea {
 }
 
 .booking-view-link {
-  border: none;
-  background: transparent;
+  border: 1px solid rgba(17, 32, 25, 0.08);
+  background: rgba(255, 255, 255, 0.72);
   color: var(--muted);
-  padding: 0;
-  font-family: "Space Grotesk", "Noto Sans KR", sans-serif;
-  font-size: 1.65rem;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-family: "Source Sans 3", "Noto Sans KR", sans-serif;
+  font-size: 1rem;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   cursor: pointer;
 }
 
 .booking-view-link.active {
-  color: var(--text);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 6px;
+  color: white;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  border-color: rgba(11, 110, 79, 0.18);
 }
 
 .booking-pagination {
