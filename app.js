@@ -446,7 +446,9 @@ function renderRooms() {
   roomGrid.innerHTML = "";
   syncFloorTabs();
 
-  const visibleRooms = rooms.filter((room) => room.floor === activeFloor);
+  const visibleRooms = rooms
+    .filter((room) => room.floor === activeFloor)
+    .sort(compareRoomNames);
 
   visibleRooms.forEach((room, index) => {
     const fragment = template.content.cloneNode(true);
@@ -869,5 +871,12 @@ function syncFloorTabs() {
     button.classList.toggle("active", floorName === activeFloor);
     button.disabled = !available;
     button.hidden = !available;
+  });
+}
+
+function compareRoomNames(firstRoom, secondRoom) {
+  return firstRoom.name.localeCompare(secondRoom.name, undefined, {
+    numeric: true,
+    sensitivity: "base",
   });
 }
