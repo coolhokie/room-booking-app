@@ -738,8 +738,8 @@ textarea {
 
 .booking-actions .primary-button,
 .booking-actions .ghost-button {
-  padding: 2px 7px;
-  font-size: 0.68rem;
+  padding: 4px 10px;
+  font-size: 0.78rem;
   border-radius: 999px;
 }
 

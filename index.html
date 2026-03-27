@@ -39,10 +39,10 @@
       <aside class="panel tabs-panel">
         <div class="tabs-nav">
           <button class="tab-button active" type="button" data-tab-target="reserve">Reserve</button>
-          <button class="tab-button" type="button" data-tab-target="add-room">Add Room</button>
-          <button class="tab-button" type="button" data-tab-target="rooms">Rooms</button>
           <button class="tab-button" type="button" data-tab-target="bookings">Bookings</button>
           <button class="tab-button" type="button" data-tab-target="calendar">Calendar</button>
+          <button class="tab-button" type="button" data-tab-target="rooms">Rooms</button>
+          <button class="tab-button" type="button" data-tab-target="add-room">Add Room</button>
           <button class="tab-button" type="button" data-tab-target="recovery">Recovery</button>
           <button class="tab-button" type="button" data-tab-target="settings">Settings</button>
         </div>
@@ -139,12 +139,15 @@
             <div class="split">
               <label>
                 Room name
-                <input type="text" id="roomName" name="roomName" placeholder="Cedar" required>
+                <input type="text" id="roomName" name="roomName" required>
               </label>
 
               <label>
                 Floor
-                <input type="text" id="roomFloor" name="roomFloor" placeholder="Floor 5" required>
+                <select id="roomFloor" name="roomFloor" required>
+                  <option value="Floor 1">Floor 1</option>
+                  <option value="Floor 2">Floor 2</option>
+                </select>
               </label>
             </div>
 
