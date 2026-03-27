@@ -721,7 +721,9 @@ function buildCalendarDay(day, monthStart) {
   const dateKey = toDateKey(day);
   const isCurrentMonth = day.getMonth() === monthStart.getMonth() && day.getFullYear() === monthStart.getFullYear();
   const isToday = dateKey === toDateKey(new Date());
-  const dayBookings = sortBookings(bookings).filter((booking) => booking.date === dateKey);
+  const dayBookings = bookings
+    .filter((booking) => booking.date === dateKey)
+    .sort(compareCalendarBookings);
   const activeBooking = dayBookings.find((booking) => booking.id === activeCalendarBookingId);
   const expanded = expandedCalendarDays.has(dateKey);
   const visibleBookings = expanded ? dayBookings : dayBookings.slice(0, 6);
@@ -1201,6 +1203,28 @@ function syncFloorTabs() {
 
 function compareRoomNames(firstRoom, secondRoom) {
   return firstRoom.name.localeCompare(secondRoom.name, undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
+}
+
+function compareCalendarBookings(firstBooking, secondBooking) {
+  const firstRoom = getRoom(firstBooking.roomId);
+  const secondRoom = getRoom(secondBooking.roomId);
+  const roomComparison = compareRoomNames(
+    firstRoom || { name: "Unknown room" },
+    secondRoom || { name: "Unknown room" },
+  );
+
+  if (roomComparison !== 0) {
+    return roomComparison;
+  }
+
+  if (firstBooking.startTime !== secondBooking.startTime) {
+    return firstBooking.startTime.localeCompare(secondBooking.startTime);
+  }
+
+  return firstBooking.purpose.localeCompare(secondBooking.purpose, undefined, {
     numeric: true,
     sensitivity: "base",
   });
