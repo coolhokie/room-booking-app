@@ -1327,18 +1327,38 @@ function renderBookingPagination(totalItems) {
     bookingCurrentPage = totalPages;
   }
 
+  bookingPagination.appendChild(createBookingPaginationButton("←", bookingCurrentPage === 1, () => {
+    bookingCurrentPage -= 1;
+    renderBookings();
+  }));
+
   for (let page = 1; page <= totalPages; page += 1) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "page-button";
-    button.textContent = String(page);
-    button.classList.toggle("active", page === bookingCurrentPage);
-    button.addEventListener("click", () => {
+    const button = createBookingPaginationButton(String(page), false, () => {
       bookingCurrentPage = page;
       renderBookings();
     });
+    button.classList.toggle("active", page === bookingCurrentPage);
     bookingPagination.appendChild(button);
   }
+
+  bookingPagination.appendChild(createBookingPaginationButton("→", bookingCurrentPage === totalPages, () => {
+    bookingCurrentPage += 1;
+    renderBookings();
+  }));
+}
+
+function createBookingPaginationButton(label, disabled, onClick) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "page-button";
+  button.textContent = label;
+  button.disabled = disabled;
+
+  if (!disabled) {
+    button.addEventListener("click", onClick);
+  }
+
+  return button;
 }
 
 function setTheme(themeName) {
