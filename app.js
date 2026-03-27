@@ -64,7 +64,6 @@ const calendarPrevButton = document.getElementById("calendarPrevButton");
 const calendarNextButton = document.getElementById("calendarNextButton");
 const calendarMonthLabel = document.getElementById("calendarMonthLabel");
 const calendarGrid = document.getElementById("calendarGrid");
-const calendarDetailLayer = document.getElementById("calendarDetailLayer");
 const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
 const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
 const floorTabButtons = [...document.querySelectorAll("[data-floor-target]")];
@@ -691,7 +690,7 @@ function renderBookings() {
 }
 
 function renderCalendar() {
-  if (!calendarGrid || !calendarMonthLabel || !calendarDetailLayer) {
+  if (!calendarGrid || !calendarMonthLabel) {
     return;
   }
 
@@ -713,8 +712,6 @@ function renderCalendar() {
   for (let cursor = new Date(firstVisibleDay); cursor <= lastVisibleDay; cursor.setDate(cursor.getDate() + 1)) {
     calendarGrid.appendChild(buildCalendarDay(new Date(cursor), monthStart));
   }
-
-  renderCalendarDetailLayer();
 }
 
 function buildCalendarDay(day, monthStart) {
@@ -725,6 +722,7 @@ function buildCalendarDay(day, monthStart) {
   const isCurrentMonth = day.getMonth() === monthStart.getMonth() && day.getFullYear() === monthStart.getFullYear();
   const isToday = dateKey === toDateKey(new Date());
   const dayBookings = sortBookings(bookings).filter((booking) => booking.date === dateKey);
+  const activeBooking = dayBookings.find((booking) => booking.id === activeCalendarBookingId);
   const expanded = expandedCalendarDays.has(dateKey);
   const visibleBookings = expanded ? dayBookings : dayBookings.slice(0, 6);
 
@@ -734,6 +732,10 @@ function buildCalendarDay(day, monthStart) {
 
   if (isToday) {
     cell.classList.add("is-today");
+  }
+
+  if (activeBooking) {
+    cell.classList.add("has-active-popup");
   }
 
   const dayNumber = document.createElement("span");
@@ -779,6 +781,14 @@ function buildCalendarDay(day, monthStart) {
   }
 
   cell.appendChild(bookingContainer);
+
+  if (activeBooking) {
+    const room = getRoom(activeBooking.roomId);
+    const detail = buildCalendarBookingDetails(activeBooking, room);
+    positionCalendarDetailInCell(detail, cell);
+    cell.appendChild(detail);
+  }
+
   return cell;
 }
 
@@ -792,40 +802,15 @@ function buildCalendarBookingDetails(booking, room) {
     <p class="card-label">${escapeHtml(formatLongDate(booking.date))}</p>
     <h4>${escapeHtml((room ? room.name : "Unknown room"))} - ${escapeHtml(booking.purpose)}</h4>
     <div class="calendar-detail-grid">
-      <p><strong>Time</strong><br>${escapeHtml(formatTime(booking.startTime))} to ${escapeHtml(formatTime(booking.endTime))}</p>
-      <p><strong>Room</strong><br>${escapeHtml(room ? room.name : "Unknown room")}</p>
-      <p><strong>Organizer</strong><br>${escapeHtml(booking.organizer)}</p>
-      <p><strong>Attendees</strong><br>${escapeHtml(String(booking.attendees))}</p>
+      <p><strong>Time</strong><br>${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</p>
       <p><strong>Floor</strong><br>${escapeHtml(room ? room.floor : "Unknown floor")}</p>
-      <p><strong>Email</strong><br>${escapeHtml(booking.requesterEmail || "No email on file")}</p>
+      <p><strong>By</strong><br>${escapeHtml(booking.organizer)}</p>
+      <p><strong>Size</strong><br>${escapeHtml(String(booking.attendees))} attendees</p>
+      <p class="calendar-detail-full"><strong>Email</strong><br>${escapeHtml(booking.requesterEmail || "None")}</p>
     </div>
     ${booking.notes ? `<div class="calendar-detail-notes"><strong>Notes</strong><br>${escapeHtml(booking.notes)}</div>` : ""}
   `;
   return detail;
-}
-
-function renderCalendarDetailLayer() {
-  if (!calendarDetailLayer) {
-    return;
-  }
-
-  calendarDetailLayer.innerHTML = "";
-
-  if (!activeCalendarBookingId) {
-    calendarDetailLayer.classList.add("hidden");
-    return;
-  }
-
-  const booking = bookings.find((item) => item.id === activeCalendarBookingId);
-  if (!booking) {
-    activeCalendarBookingId = "";
-    calendarDetailLayer.classList.add("hidden");
-    return;
-  }
-
-  const room = getRoom(booking.roomId);
-  calendarDetailLayer.classList.remove("hidden");
-  calendarDetailLayer.appendChild(buildCalendarBookingDetails(booking, room));
 }
 
 function updateNextReservation() {
@@ -1268,6 +1253,20 @@ function handleDocumentClick(event) {
 
   activeCalendarBookingId = "";
   renderCalendar();
+}
+
+function positionCalendarDetailInCell(detailElement, cellElement) {
+  detailElement.style.top = "40px";
+
+  const cellRect = cellElement.getBoundingClientRect();
+  const estimatedWidth = Math.min(280, window.innerWidth - 32);
+  if (cellRect.left + estimatedWidth > window.innerWidth - 16) {
+    detailElement.style.right = "8px";
+    detailElement.style.left = "auto";
+  } else {
+    detailElement.style.left = "8px";
+    detailElement.style.right = "auto";
+  }
 }
 
 function syncBookingViewButtons() {
