@@ -305,16 +305,25 @@ textarea {
   margin: 0;
   color: var(--danger);
   font-weight: 600;
+  padding: 0;
+  border-radius: 14px;
+  transition: background 0.2s ease, padding 0.2s ease, color 0.2s ease;
+}
+
+.form-message:not(:empty) {
+  padding: 12px 14px;
+  background: rgba(159, 58, 47, 0.08);
 }
 
 .form-message.success {
   color: var(--accent-strong);
+  background: rgba(11, 110, 79, 0.12);
 }
 
 .room-grid,
 .booking-list {
   display: grid;
-  gap: 14px;
+  gap: 8px;
 }
 
 .room-grid {
@@ -352,6 +361,10 @@ textarea {
   align-items: center;
 }
 
+#recoveryMessage {
+  margin-top: 12px;
+}
+
 .booking-filters {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -369,7 +382,7 @@ textarea {
   border: 1px solid rgba(17, 32, 25, 0.08);
   background: rgba(255, 255, 255, 0.72);
   color: var(--muted);
-  padding: 10px 16px;
+  padding: 6px 14px;
   border-radius: 999px;
   font-family: "Source Sans 3", "Noto Sans KR", sans-serif;
   font-size: 1rem;
@@ -382,6 +395,10 @@ textarea {
   color: white;
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
   border-color: rgba(11, 110, 79, 0.18);
+}
+
+.panel-bookings .primary-button {
+  padding: 6px 14px;
 }
 
 .booking-pagination {
@@ -397,6 +414,10 @@ textarea {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.calendar-nav .ghost-button {
+  padding: 6px 14px;
 }
 
 .calendar-month-label {
@@ -659,6 +680,12 @@ textarea {
   border: 1px solid rgba(17, 32, 25, 0.08);
 }
 
+.booking-item {
+  padding: 5px 7px;
+  border-radius: 12px;
+  align-items: flex-start;
+}
+
 .room-card {
   display: grid;
   gap: 10px;
@@ -673,22 +700,54 @@ textarea {
 .booking-item {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 8px;
+}
+
+.booking-item > div:first-child {
+  display: grid;
+  gap: 1px;
+}
+
+.booking-item h3 {
+  font-size: 1rem;
+  line-height: 1.05;
+}
+
+.booking-item .booking-time,
+.booking-item .booking-meta {
+  margin: 0;
+}
+
+.booking-time {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+}
+
+.booking-meta {
+  font-size: 0.84rem;
+  line-height: 1.02;
 }
 
 .booking-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  align-items: start;
+  gap: 4px;
+  align-items: flex-start;
   justify-content: end;
+}
+
+.booking-actions .primary-button,
+.booking-actions .ghost-button {
+  padding: 2px 7px;
+  font-size: 0.68rem;
+  border-radius: 999px;
 }
 
 .room-status {
   align-self: start;
-  padding: 8px 12px;
+  padding: 4px 10px;
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 700;
 }
 
@@ -723,14 +782,20 @@ textarea {
 
 .room-edit-button {
   justify-self: start;
-  padding: 10px 14px;
-  font-size: 0.9rem;
+  padding: 4px 10px;
+  font-size: 0.78rem;
 }
 
 .room-card-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
+}
+
+.room-card-actions .primary-button,
+.room-card-actions .ghost-button {
+  padding: 4px 10px;
+  font-size: 0.78rem;
 }
 
 .room-edit-form {

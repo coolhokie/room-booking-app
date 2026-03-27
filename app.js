@@ -165,7 +165,7 @@ async function initializeApp() {
 
   renderAll();
   populateBookingRoomFilter();
-  showRoomMessage(getPersistenceMessage(), true);
+  showRecoveryMessage(getPersistenceMessage(), true);
 }
 
 function initializeReservationDefaults() {
@@ -410,17 +410,24 @@ async function handleReservationSubmit(event) {
   bookings.push(reservation);
   bookings = sortBookings(bookings);
   await persistState();
+  const room = getRoom(reservation.roomId);
+  const roomName = room ? room.name : "Unknown room";
+  const baseSuccessMessage = `Reserved ${roomName} for ${reservation.purpose} on ${formatLongDate(reservation.date)} from ${formatTime(reservation.startTime)} to ${formatTime(reservation.endTime)}.`;
+
+  showMessage(baseSuccessMessage, true);
+
+  let successMessage = baseSuccessMessage;
   if (reservation.requesterEmail) {
     const emailResult = await sendConfirmationEmail(reservation);
-    showMessage(`${emailResult.message} Saved for ${formatLongDate(reservation.date)} from ${formatTime(reservation.startTime)} to ${formatTime(reservation.endTime)}.`, true);
-  } else {
-    const room = getRoom(reservation.roomId);
-    const roomName = room ? room.name : "Unknown room";
-    showMessage(`Reserved ${roomName} for ${reservation.purpose} on ${formatLongDate(reservation.date)} from ${formatTime(reservation.startTime)} to ${formatTime(reservation.endTime)}.`, true);
+    successMessage = `${emailResult.message} Saved for ${formatLongDate(reservation.date)} from ${formatTime(reservation.startTime)} to ${formatTime(reservation.endTime)}.`;
   }
+
   reservationForm.reset();
   initializeReservationDefaults();
   renderAll();
+  window.requestAnimationFrame(() => {
+    showMessage(successMessage, true);
+  });
 }
 
 async function handleRoomSubmit(event) {
@@ -1129,6 +1136,10 @@ function sanitizeBookings(items) {
 function showMessage(message, success = false) {
   formMessage.textContent = message;
   formMessage.classList.toggle("success", success);
+
+  if (message) {
+    formMessage.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
 }
 
 function showRoomMessage(message, success = false) {
@@ -1178,6 +1189,7 @@ function quickReserveRoom(roomId) {
   setActiveTab("reserve");
   roomSelect.value = roomId;
   formMessage.textContent = "";
+  formMessage.classList.remove("success");
   roomSelect.focus();
 }
 
