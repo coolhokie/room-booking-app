@@ -104,6 +104,7 @@ let bookingViewMode = "next24";
 let bookingCurrentPage = 1;
 let calendarMonth = getMonthStart(new Date());
 let expandedCalendarDays = new Set();
+let activeCalendarBookingId = "";
 
 applyTheme(activeTheme);
 initializeReservationDefaults();
@@ -139,6 +140,7 @@ floorTabButtons.forEach((button) => {
 themeButtons.forEach((button) => {
   button.addEventListener("click", () => setTheme(button.dataset.theme));
 });
+document.addEventListener("click", handleDocumentClick);
 
 async function initializeApp() {
   const serverState = await loadServerState();
@@ -747,13 +749,24 @@ function buildCalendarDay(day, monthStart) {
   } else {
     visibleBookings.forEach((booking) => {
       const room = getRoom(booking.roomId);
-      const bookingItem = document.createElement("div");
+      const bookingItem = document.createElement("button");
+      const isActive = activeCalendarBookingId === booking.id;
       bookingItem.className = "calendar-booking-pill";
+      bookingItem.type = "button";
+      bookingItem.classList.toggle("is-active", isActive);
       bookingItem.innerHTML = `
         <strong>${escapeHtml(room ? room.name : "Unknown room")}</strong>
         <span>${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(booking.purpose)}</span>
       `;
+      bookingItem.addEventListener("click", (event) => {
+        event.stopPropagation();
+        toggleCalendarBookingDetails(booking.id);
+      });
       bookingContainer.appendChild(bookingItem);
+
+      if (isActive) {
+        bookingContainer.appendChild(buildCalendarBookingDetails(booking, room));
+      }
     });
 
     if (dayBookings.length > 6) {
@@ -768,6 +781,20 @@ function buildCalendarDay(day, monthStart) {
 
   cell.appendChild(bookingContainer);
   return cell;
+}
+
+function buildCalendarBookingDetails(booking, room) {
+  const detail = document.createElement("div");
+  detail.className = "calendar-detail-popover";
+  detail.innerHTML = `
+    <p class="card-label">${escapeHtml(formatLongDate(booking.date))}</p>
+    <h4>${escapeHtml((room ? room.name : "Unknown room"))} - ${escapeHtml(booking.purpose)}</h4>
+    <p>${escapeHtml(formatTime(booking.startTime))} to ${escapeHtml(formatTime(booking.endTime))}</p>
+    <p>${escapeHtml(booking.organizer)} reserved for ${escapeHtml(String(booking.attendees))} attendees</p>
+    <p>${escapeHtml(room ? room.floor : "Unknown floor")}${booking.requesterEmail ? ` - ${escapeHtml(booking.requesterEmail)}` : ""}</p>
+    ${booking.notes ? `<p>${escapeHtml(booking.notes)}</p>` : ""}
+  `;
+  return detail;
 }
 
 function updateNextReservation() {
@@ -1191,6 +1218,24 @@ function toggleCalendarDay(dateKey) {
     expandedCalendarDays.add(dateKey);
   }
 
+  renderCalendar();
+}
+
+function toggleCalendarBookingDetails(bookingId) {
+  activeCalendarBookingId = activeCalendarBookingId === bookingId ? "" : bookingId;
+  renderCalendar();
+}
+
+function handleDocumentClick(event) {
+  if (!activeCalendarBookingId) {
+    return;
+  }
+
+  if (event.target.closest(".calendar-booking-pill") || event.target.closest(".calendar-detail-popover")) {
+    return;
+  }
+
+  activeCalendarBookingId = "";
   renderCalendar();
 }
 
