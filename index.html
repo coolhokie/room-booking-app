@@ -42,6 +42,7 @@
           <button class="tab-button" type="button" data-tab-target="add-room">Add Room</button>
           <button class="tab-button" type="button" data-tab-target="rooms">Rooms</button>
           <button class="tab-button" type="button" data-tab-target="bookings">Bookings</button>
+          <button class="tab-button" type="button" data-tab-target="calendar">Calendar</button>
           <button class="tab-button" type="button" data-tab-target="recovery">Recovery</button>
           <button class="tab-button" type="button" data-tab-target="settings">Settings</button>
         </div>
@@ -206,6 +207,30 @@
           </div>
           <div id="bookingList" class="booking-list"></div>
           <div id="bookingPagination" class="booking-pagination"></div>
+        </section>
+
+        <section class="panel panel-calendar tab-section" data-tab-panel="calendar">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Monthly View</p>
+              <h2>Calendar</h2>
+            </div>
+            <div class="calendar-nav">
+              <button id="calendarPrevButton" class="ghost-button" type="button">Previous</button>
+              <strong id="calendarMonthLabel" class="calendar-month-label">Month</strong>
+              <button id="calendarNextButton" class="ghost-button" type="button">Next</button>
+            </div>
+          </div>
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span>Sun</span>
+            <span>Mon</span>
+            <span>Tue</span>
+            <span>Wed</span>
+            <span>Thu</span>
+            <span>Fri</span>
+            <span>Sat</span>
+          </div>
+          <div id="calendarGrid" class="calendar-grid"></div>
         </section>
 
         <section class="panel panel-recovery tab-section" data-tab-panel="recovery">

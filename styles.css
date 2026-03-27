@@ -392,6 +392,114 @@ textarea {
   margin-top: 18px;
 }
 
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.calendar-month-label {
+  min-width: 200px;
+  text-align: center;
+  font-family: "Space Grotesk", "Noto Sans KR", sans-serif;
+  font-size: 1.15rem;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.calendar-weekdays {
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.calendar-weekdays span {
+  text-align: center;
+  padding: 8px 0;
+}
+
+.calendar-day {
+  min-height: 172px;
+  padding: 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(17, 32, 25, 0.08);
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+
+.calendar-day.is-other-month {
+  opacity: 0.48;
+}
+
+.calendar-day.is-today {
+  border-color: rgba(11, 110, 79, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(11, 110, 79, 0.16);
+}
+
+.calendar-day-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  font-weight: 700;
+  background: rgba(17, 32, 25, 0.06);
+}
+
+.calendar-day.is-today .calendar-day-number {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: white;
+}
+
+.calendar-day-bookings {
+  display: grid;
+  gap: 6px;
+}
+
+.calendar-booking-pill {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(17, 32, 25, 0.05);
+  color: var(--text);
+  font-size: 0.85rem;
+  line-height: 1.25;
+}
+
+.calendar-booking-pill strong,
+.calendar-booking-pill span {
+  display: block;
+}
+
+.calendar-booking-pill span {
+  color: var(--muted);
+}
+
+.calendar-more-button {
+  justify-self: start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--accent-strong);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.calendar-empty {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
 .page-button {
   border: 1px solid rgba(17, 32, 25, 0.08);
   background: rgba(255, 255, 255, 0.72);
@@ -596,6 +704,15 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .calendar-weekdays,
+  .calendar-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .calendar-weekdays {
+    display: none;
+  }
+
   .hero-image {
     min-height: 260px;
   }
@@ -627,6 +744,15 @@ textarea {
 
   .booking-filters {
     grid-template-columns: 1fr;
+  }
+
+  .calendar-nav {
+    justify-content: flex-start;
+  }
+
+  .calendar-month-label {
+    min-width: 0;
+    text-align: left;
   }
 
   .room-card-top,

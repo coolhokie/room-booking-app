@@ -60,6 +60,10 @@ const next24Button = document.getElementById("next24Button");
 const showAllButton = document.getElementById("showAllButton");
 const historyButton = document.getElementById("historyButton");
 const bookingPagination = document.getElementById("bookingPagination");
+const calendarPrevButton = document.getElementById("calendarPrevButton");
+const calendarNextButton = document.getElementById("calendarNextButton");
+const calendarMonthLabel = document.getElementById("calendarMonthLabel");
+const calendarGrid = document.getElementById("calendarGrid");
 const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
 const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
 const floorTabButtons = [...document.querySelectorAll("[data-floor-target]")];
@@ -98,6 +102,8 @@ let activeFloor = "Floor 1";
 let activeTheme = loadThemePreference();
 let bookingViewMode = "next24";
 let bookingCurrentPage = 1;
+let calendarMonth = getMonthStart(new Date());
+let expandedCalendarDays = new Set();
 
 applyTheme(activeTheme);
 initializeReservationDefaults();
@@ -122,6 +128,8 @@ exportBookingsButton.addEventListener("click", handleExportBookingsToExcel);
 next24Button.addEventListener("click", () => setBookingViewMode("next24"));
 showAllButton.addEventListener("click", () => setBookingViewMode("all"));
 historyButton.addEventListener("click", () => setBookingViewMode("history"));
+calendarPrevButton.addEventListener("click", () => changeCalendarMonth(-1));
+calendarNextButton.addEventListener("click", () => changeCalendarMonth(1));
 tabButtons.forEach((button) => {
   button.addEventListener("click", () => setActiveTab(button.dataset.tabTarget));
 });
@@ -524,6 +532,7 @@ function renderAll() {
   renderMetrics();
   renderRooms();
   renderBookings();
+  renderCalendar();
   updateNextReservation();
   updateRoomOptions();
   populateBookingRoomFilter();
@@ -676,6 +685,89 @@ function renderBookings() {
   });
 
   renderBookingPagination(filteredBookings.length);
+}
+
+function renderCalendar() {
+  if (!calendarGrid || !calendarMonthLabel) {
+    return;
+  }
+
+  const monthStart = getMonthStart(calendarMonth);
+  const firstVisibleDay = new Date(monthStart);
+  firstVisibleDay.setDate(firstVisibleDay.getDate() - firstVisibleDay.getDay());
+
+  const monthEnd = new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 0);
+  const lastVisibleDay = new Date(monthEnd);
+  lastVisibleDay.setDate(lastVisibleDay.getDate() + (6 - lastVisibleDay.getDay()));
+
+  calendarMonthLabel.textContent = new Intl.DateTimeFormat(undefined, {
+    month: "long",
+    year: "numeric",
+  }).format(monthStart);
+
+  calendarGrid.innerHTML = "";
+
+  for (let cursor = new Date(firstVisibleDay); cursor <= lastVisibleDay; cursor.setDate(cursor.getDate() + 1)) {
+    calendarGrid.appendChild(buildCalendarDay(new Date(cursor), monthStart));
+  }
+}
+
+function buildCalendarDay(day, monthStart) {
+  const cell = document.createElement("article");
+  cell.className = "calendar-day";
+
+  const dateKey = toDateKey(day);
+  const isCurrentMonth = day.getMonth() === monthStart.getMonth() && day.getFullYear() === monthStart.getFullYear();
+  const isToday = dateKey === toDateKey(new Date());
+  const dayBookings = sortBookings(bookings).filter((booking) => booking.date === dateKey);
+  const expanded = expandedCalendarDays.has(dateKey);
+  const visibleBookings = expanded ? dayBookings : dayBookings.slice(0, 6);
+
+  if (!isCurrentMonth) {
+    cell.classList.add("is-other-month");
+  }
+
+  if (isToday) {
+    cell.classList.add("is-today");
+  }
+
+  const dayNumber = document.createElement("span");
+  dayNumber.className = "calendar-day-number";
+  dayNumber.textContent = String(day.getDate());
+  cell.appendChild(dayNumber);
+
+  const bookingContainer = document.createElement("div");
+  bookingContainer.className = "calendar-day-bookings";
+
+  if (dayBookings.length === 0) {
+    const empty = document.createElement("span");
+    empty.className = "calendar-empty";
+    empty.textContent = "No bookings";
+    bookingContainer.appendChild(empty);
+  } else {
+    visibleBookings.forEach((booking) => {
+      const room = getRoom(booking.roomId);
+      const bookingItem = document.createElement("div");
+      bookingItem.className = "calendar-booking-pill";
+      bookingItem.innerHTML = `
+        <strong>${escapeHtml(room ? room.name : "Unknown room")}</strong>
+        <span>${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(booking.purpose)}</span>
+      `;
+      bookingContainer.appendChild(bookingItem);
+    });
+
+    if (dayBookings.length > 6) {
+      const moreButton = document.createElement("button");
+      moreButton.type = "button";
+      moreButton.className = "calendar-more-button";
+      moreButton.textContent = expanded ? "Show less" : `${dayBookings.length - 6} more`;
+      moreButton.addEventListener("click", () => toggleCalendarDay(dateKey));
+      bookingContainer.appendChild(moreButton);
+    }
+  }
+
+  cell.appendChild(bookingContainer);
+  return cell;
 }
 
 function updateNextReservation() {
@@ -1031,6 +1123,10 @@ function setActiveTab(tabName) {
   tabPanels.forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.tabPanel === tabName);
   });
+
+  if (tabName === "calendar") {
+    renderCalendar();
+  }
 }
 
 function quickReserveRoom(roomId) {
@@ -1080,6 +1176,22 @@ function setBookingViewMode(mode) {
   bookingViewMode = mode;
   bookingCurrentPage = 1;
   renderBookings();
+}
+
+function changeCalendarMonth(offset) {
+  calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + offset, 1);
+  expandedCalendarDays = new Set();
+  renderCalendar();
+}
+
+function toggleCalendarDay(dateKey) {
+  if (expandedCalendarDays.has(dateKey)) {
+    expandedCalendarDays.delete(dateKey);
+  } else {
+    expandedCalendarDays.add(dateKey);
+  }
+
+  renderCalendar();
 }
 
 function syncBookingViewButtons() {
@@ -1160,6 +1272,26 @@ function showSettingsMessage(message, success = false) {
 
 function capitalize(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function getMonthStart(date) {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+function toDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function startLiveClock() {
