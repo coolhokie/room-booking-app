@@ -64,6 +64,7 @@ const calendarPrevButton = document.getElementById("calendarPrevButton");
 const calendarNextButton = document.getElementById("calendarNextButton");
 const calendarMonthLabel = document.getElementById("calendarMonthLabel");
 const calendarGrid = document.getElementById("calendarGrid");
+const calendarDetailLayer = document.getElementById("calendarDetailLayer");
 const tabButtons = [...document.querySelectorAll("[data-tab-target]")];
 const tabPanels = [...document.querySelectorAll("[data-tab-panel]")];
 const floorTabButtons = [...document.querySelectorAll("[data-floor-target]")];
@@ -690,7 +691,7 @@ function renderBookings() {
 }
 
 function renderCalendar() {
-  if (!calendarGrid || !calendarMonthLabel) {
+  if (!calendarGrid || !calendarMonthLabel || !calendarDetailLayer) {
     return;
   }
 
@@ -712,6 +713,8 @@ function renderCalendar() {
   for (let cursor = new Date(firstVisibleDay); cursor <= lastVisibleDay; cursor.setDate(cursor.getDate() + 1)) {
     calendarGrid.appendChild(buildCalendarDay(new Date(cursor), monthStart));
   }
+
+  renderCalendarDetailLayer();
 }
 
 function buildCalendarDay(day, monthStart) {
@@ -763,10 +766,6 @@ function buildCalendarDay(day, monthStart) {
         toggleCalendarBookingDetails(booking.id);
       });
       bookingContainer.appendChild(bookingItem);
-
-      if (isActive) {
-        bookingContainer.appendChild(buildCalendarBookingDetails(booking, room));
-      }
     });
 
     if (dayBookings.length > 6) {
@@ -786,15 +785,47 @@ function buildCalendarDay(day, monthStart) {
 function buildCalendarBookingDetails(booking, room) {
   const detail = document.createElement("div");
   detail.className = "calendar-detail-popover";
+  detail.addEventListener("click", (event) => {
+    event.stopPropagation();
+  });
   detail.innerHTML = `
     <p class="card-label">${escapeHtml(formatLongDate(booking.date))}</p>
     <h4>${escapeHtml((room ? room.name : "Unknown room"))} - ${escapeHtml(booking.purpose)}</h4>
-    <p>${escapeHtml(formatTime(booking.startTime))} to ${escapeHtml(formatTime(booking.endTime))}</p>
-    <p>${escapeHtml(booking.organizer)} reserved for ${escapeHtml(String(booking.attendees))} attendees</p>
-    <p>${escapeHtml(room ? room.floor : "Unknown floor")}${booking.requesterEmail ? ` - ${escapeHtml(booking.requesterEmail)}` : ""}</p>
-    ${booking.notes ? `<p>${escapeHtml(booking.notes)}</p>` : ""}
+    <div class="calendar-detail-grid">
+      <p><strong>Time</strong><br>${escapeHtml(formatTime(booking.startTime))} to ${escapeHtml(formatTime(booking.endTime))}</p>
+      <p><strong>Room</strong><br>${escapeHtml(room ? room.name : "Unknown room")}</p>
+      <p><strong>Organizer</strong><br>${escapeHtml(booking.organizer)}</p>
+      <p><strong>Attendees</strong><br>${escapeHtml(String(booking.attendees))}</p>
+      <p><strong>Floor</strong><br>${escapeHtml(room ? room.floor : "Unknown floor")}</p>
+      <p><strong>Email</strong><br>${escapeHtml(booking.requesterEmail || "No email on file")}</p>
+    </div>
+    ${booking.notes ? `<div class="calendar-detail-notes"><strong>Notes</strong><br>${escapeHtml(booking.notes)}</div>` : ""}
   `;
   return detail;
+}
+
+function renderCalendarDetailLayer() {
+  if (!calendarDetailLayer) {
+    return;
+  }
+
+  calendarDetailLayer.innerHTML = "";
+
+  if (!activeCalendarBookingId) {
+    calendarDetailLayer.classList.add("hidden");
+    return;
+  }
+
+  const booking = bookings.find((item) => item.id === activeCalendarBookingId);
+  if (!booking) {
+    activeCalendarBookingId = "";
+    calendarDetailLayer.classList.add("hidden");
+    return;
+  }
+
+  const room = getRoom(booking.roomId);
+  calendarDetailLayer.classList.remove("hidden");
+  calendarDetailLayer.appendChild(buildCalendarBookingDetails(booking, room));
 }
 
 function updateNextReservation() {
