@@ -119,6 +119,7 @@ renderAll();
 initializeApp();
 startLiveClock();
 loadCentrevilleWeather();
+startAutoRefresh();
 
 reservationForm.addEventListener("submit", handleReservationSubmit);
 roomForm.addEventListener("submit", handleRoomSubmit);
@@ -1577,6 +1578,12 @@ function escapeHtml(value) {
 function startLiveClock() {
   updateLiveDateTime();
   window.setInterval(updateLiveDateTime, 1000);
+}
+
+function startAutoRefresh() {
+  window.setInterval(() => {
+    window.location.reload();
+  }, 5 * 60 * 1000);
 }
 
 function updateLiveDateTime() {
