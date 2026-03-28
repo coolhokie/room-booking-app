@@ -207,8 +207,7 @@ function populateTimeSelectors() {
     const hour = String(index + 1);
     return `<option value="${hour}">${hour}</option>`;
   }).join("");
-  const minuteOptions = Array.from({ length: 12 }, (_, index) => {
-    const minute = String(index * 5).padStart(2, "0");
+  const minuteOptions = ["00", "15", "30", "45"].map((minute) => {
     return `<option value="${minute}">${minute}</option>`;
   }).join("");
 
@@ -251,7 +250,8 @@ function setTimeSelectors(hourElement, minuteElement, meridiemElement, parts) {
 
 function toTwelveHourParts(date) {
   const hours = date.getHours();
-  const minute = String(Math.floor(date.getMinutes() / 5) * 5).padStart(2, "0");
+  const minuteBuckets = ["00", "15", "30", "45"];
+  const minute = minuteBuckets[Math.floor(date.getMinutes() / 15) % 4];
   const meridiem = hours >= 12 ? "PM" : "AM";
   const normalizedHour = hours % 12 || 12;
 
