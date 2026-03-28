@@ -57,55 +57,71 @@
             </div>
           </div>
 
-          <form id="reservationForm" class="reservation-form">
+          <form id="reservationForm" class="reservation-form" autocomplete="off" data-lpignore="true">
+          <input type="text" name="profileTrapName" autocomplete="username" tabindex="-1" aria-hidden="true" class="hidden">
+          <input type="password" name="profileTrapPassword" autocomplete="new-password" tabindex="-1" aria-hidden="true" class="hidden">
           <label>
             Organizer
-            <input type="text" id="organizer" name="organizer" required>
+            <input type="text" id="organizer" name="bookingOrganizerField" autocomplete="off" data-lpignore="true" required>
           </label>
 
           <label>
             Requester email
-            <input type="email" id="requesterEmail" name="requesterEmail">
+            <input type="text" id="requesterEmail" name="bookingRequesterField" inputmode="email" autocapitalize="off" spellcheck="false" autocomplete="off" data-lpignore="true">
           </label>
 
           <label>
             Team / Purpose
-            <input type="text" id="purpose" name="purpose" required>
+            <input type="text" id="purpose" name="bookingPurposeField" autocomplete="off" data-lpignore="true" required>
           </label>
 
-            <div class="split">
+            <div class="split split-datetime">
               <label>
                 Date
-                <input type="date" id="date" name="date" required>
+                <input type="date" id="date" name="bookingDateField" required>
               </label>
 
-              <label>
-                Room
-                <select id="room" name="room" required></select>
-              </label>
-            </div>
-
-            <div class="split split-times">
               <label>
                 Start
-                <input type="time" id="startTime" name="startTime" required>
+                <div class="time-select-group">
+                  <select id="startHour" aria-label="Start hour"></select>
+                  <select id="startMinute" aria-label="Start minute"></select>
+                  <select id="startMeridiem" aria-label="Start AM or PM">
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+                <input type="hidden" id="startTime" name="bookingStartTimeField" required>
               </label>
 
               <label>
                 End
-                <input type="time" id="endTime" name="endTime" required>
+                <div class="time-select-group">
+                  <select id="endHour" aria-label="End hour"></select>
+                  <select id="endMinute" aria-label="End minute"></select>
+                  <select id="endMeridiem" aria-label="End AM or PM">
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+                <input type="hidden" id="endTime" name="bookingEndTimeField" required>
               </label>
             </div>
+
+            <label>
+              Room
+              <select id="room" name="bookingRoomField" required></select>
+            </label>
 
             <div class="split">
               <label>
                 Expected attendees
-                <input type="number" id="attendees" name="attendees" min="1" value="4" required>
+                <input type="number" id="attendees" name="bookingAttendeesField" min="1" value="4" required>
               </label>
 
               <label>
                 Feature required
-                <select id="featureFilter" name="featureFilter">
+                <select id="featureFilter" name="bookingFeatureField">
                   <option value="">No preference</option>
                   <option value="Video Conferencing">Video Conferencing</option>
                   <option value="Whiteboard Wall">Whiteboard Wall</option>
@@ -117,7 +133,7 @@
 
             <label>
               Notes
-              <textarea id="notes" name="notes" rows="3" placeholder="Add meeting context or setup notes."></textarea>
+              <textarea id="notes" name="bookingNotesField" rows="3" placeholder="Add meeting context or setup notes."></textarea>
             </label>
 
             <p id="formMessage" class="form-message" aria-live="polite"></p>

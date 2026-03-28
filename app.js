@@ -38,6 +38,12 @@ const roomSelect = document.getElementById("room");
 const dateInput = document.getElementById("date");
 const startTimeInput = document.getElementById("startTime");
 const endTimeInput = document.getElementById("endTime");
+const startHourSelect = document.getElementById("startHour");
+const startMinuteSelect = document.getElementById("startMinute");
+const startMeridiemSelect = document.getElementById("startMeridiem");
+const endHourSelect = document.getElementById("endHour");
+const endMinuteSelect = document.getElementById("endMinute");
+const endMeridiemSelect = document.getElementById("endMeridiem");
 const attendeesInput = document.getElementById("attendees");
 const featureFilterInput = document.getElementById("featureFilter");
 const formMessage = document.getElementById("formMessage");
@@ -107,6 +113,7 @@ let expandedCalendarDays = new Set();
 let activeCalendarBookingId = "";
 
 applyTheme(activeTheme);
+populateTimeSelectors();
 initializeReservationDefaults();
 renderAll();
 initializeApp();
@@ -118,8 +125,12 @@ roomForm.addEventListener("submit", handleRoomSubmit);
 featureFilterInput.addEventListener("change", renderAll);
 attendeesInput.addEventListener("input", renderAll);
 dateInput.addEventListener("change", renderAll);
-startTimeInput.addEventListener("change", renderAll);
-endTimeInput.addEventListener("change", renderAll);
+[startHourSelect, startMinuteSelect, startMeridiemSelect].forEach((element) => {
+  element.addEventListener("change", handleStartTimeChange);
+});
+[endHourSelect, endMinuteSelect, endMeridiemSelect].forEach((element) => {
+  element.addEventListener("change", handleEndTimeChange);
+});
 exportDataButton.addEventListener("click", handleExportData);
 importDataInput.addEventListener("change", handleImportFile);
 importBrowserDataButton.addEventListener("click", handleImportBrowserData);
@@ -171,13 +182,93 @@ async function initializeApp() {
 function initializeReservationDefaults() {
   const today = new Date();
   const currentDate = today.toISOString().split("T")[0];
-  const nextHourValue = Math.min(today.getHours() + 1, 18);
-  const endHourValue = Math.min(nextHourValue + 1, 19);
+  const roundedMinutes = Math.ceil(today.getMinutes() / 5) * 5;
+  today.setSeconds(0, 0);
+  if (roundedMinutes === 60) {
+    today.setHours(today.getHours() + 1, 0, 0, 0);
+  } else {
+    today.setMinutes(roundedMinutes, 0, 0);
+  }
+
+  const startDate = new Date(today);
+  startDate.setHours(Math.min(startDate.getHours() + 1, 18), startDate.getMinutes(), 0, 0);
+  const endDate = new Date(startDate);
+  endDate.setHours(Math.min(startDate.getHours() + 1, 19), startDate.getMinutes(), 0, 0);
 
   dateInput.value = currentDate;
   dateInput.min = currentDate;
-  startTimeInput.value = `${String(nextHourValue).padStart(2, "0")}:00`;
-  endTimeInput.value = `${String(endHourValue).padStart(2, "0")}:00`;
+  setTimeSelectors(startHourSelect, startMinuteSelect, startMeridiemSelect, toTwelveHourParts(startDate));
+  setTimeSelectors(endHourSelect, endMinuteSelect, endMeridiemSelect, toTwelveHourParts(endDate));
+  syncReservationTimeInputs();
+}
+
+function populateTimeSelectors() {
+  const hourOptions = Array.from({ length: 12 }, (_, index) => {
+    const hour = String(index + 1);
+    return `<option value="${hour}">${hour}</option>`;
+  }).join("");
+  const minuteOptions = Array.from({ length: 12 }, (_, index) => {
+    const minute = String(index * 5).padStart(2, "0");
+    return `<option value="${minute}">${minute}</option>`;
+  }).join("");
+
+  [startHourSelect, endHourSelect].forEach((element) => {
+    element.innerHTML = hourOptions;
+  });
+  [startMinuteSelect, endMinuteSelect].forEach((element) => {
+    element.innerHTML = minuteOptions;
+  });
+}
+
+function handleStartTimeChange() {
+  syncReservationTimeInputs();
+  renderAll();
+}
+
+function handleEndTimeChange() {
+  syncReservationTimeInputs();
+  renderAll();
+}
+
+function syncReservationTimeInputs() {
+  startTimeInput.value = toTwentyFourHourValue(
+    startHourSelect.value,
+    startMinuteSelect.value,
+    startMeridiemSelect.value,
+  );
+  endTimeInput.value = toTwentyFourHourValue(
+    endHourSelect.value,
+    endMinuteSelect.value,
+    endMeridiemSelect.value,
+  );
+}
+
+function setTimeSelectors(hourElement, minuteElement, meridiemElement, parts) {
+  hourElement.value = parts.hour;
+  minuteElement.value = parts.minute;
+  meridiemElement.value = parts.meridiem;
+}
+
+function toTwelveHourParts(date) {
+  const hours = date.getHours();
+  const minute = String(Math.floor(date.getMinutes() / 5) * 5).padStart(2, "0");
+  const meridiem = hours >= 12 ? "PM" : "AM";
+  const normalizedHour = hours % 12 || 12;
+
+  return {
+    hour: String(normalizedHour),
+    minute,
+    meridiem,
+  };
+}
+
+function toTwentyFourHourValue(hour, minute, meridiem) {
+  let normalizedHour = Number(hour) % 12;
+  if (meridiem === "PM") {
+    normalizedHour += 12;
+  }
+
+  return `${String(normalizedHour).padStart(2, "0")}:${minute}`;
 }
 
 function seedBookings() {
@@ -395,9 +486,19 @@ async function applyImportedState(payload) {
 async function handleReservationSubmit(event) {
   event.preventDefault();
   const data = new FormData(reservationForm);
-  const reservation = Object.fromEntries(data.entries());
-  reservation.roomId = reservation.room;
-  delete reservation.room;
+  const fields = Object.fromEntries(data.entries());
+  const reservation = {
+    organizer: fields.bookingOrganizerField || "",
+    requesterEmail: fields.bookingRequesterField || "",
+    purpose: fields.bookingPurposeField || "",
+    date: fields.bookingDateField || "",
+    startTime: fields.bookingStartTimeField || "",
+    endTime: fields.bookingEndTimeField || "",
+    roomId: fields.bookingRoomField || "",
+    attendees: Number(fields.bookingAttendeesField || 0),
+    featureFilter: fields.bookingFeatureField || "",
+    notes: fields.bookingNotesField || "",
+  };
   reservation.attendees = Number(reservation.attendees);
   reservation.id = crypto.randomUUID();
 
@@ -482,6 +583,10 @@ async function handleRoomEditSubmit(event, roomId, messageElement, formElement, 
 }
 
 function validateReservation(reservation) {
+  if (reservation.requesterEmail && !isValidEmail(reservation.requesterEmail)) {
+    return "Please enter a valid requester email address.";
+  }
+
   if (reservation.startTime >= reservation.endTime) {
     return "End time must be later than the start time.";
   }
@@ -511,6 +616,10 @@ function validateReservation(reservation) {
   }
 
   return "";
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
 }
 
 function validateRoom(room, ignoreRoomId = "") {
@@ -841,9 +950,20 @@ function updateRoomOptions() {
   const currentValue = roomSelect.value;
 
   roomSelect.innerHTML = rooms.map((room) => {
-    const disabled = !roomMatchesFilters(room) ? "disabled" : "";
+    const available = roomMatchesFilters(room) && !roomHasConflict(room.id);
+    const disabled = available ? "" : "disabled";
     return `<option value="${room.id}" ${disabled}>${room.name}</option>`;
   }).join("");
+
+  [...roomSelect.options].forEach((option) => {
+    if (option.disabled) {
+      option.style.color = "rgba(17, 32, 25, 0.4)";
+      option.style.fontWeight = "500";
+    } else {
+      option.style.color = "rgba(17, 32, 25, 0.95)";
+      option.style.fontWeight = "700";
+    }
+  });
 
   const currentStillValid = [...roomSelect.options].some((option) => option.value === currentValue && !option.disabled);
   if (currentStillValid) {
