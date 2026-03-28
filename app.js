@@ -697,6 +697,8 @@ function renderRooms() {
     fragment.querySelector(".room-name").textContent = room.name;
     fragment.querySelector(".room-capacity").textContent = `${room.capacity} seats`;
     card.style.animationDelay = `${index * 60}ms`;
+    reserveButton.classList.remove("hidden");
+    reserveButton.addEventListener("click", () => quickReserveRoom(room.id));
 
     if (filteredOut) {
       status.textContent = "Not a fit";
@@ -704,8 +706,6 @@ function renderRooms() {
     } else if (available) {
       status.textContent = "Available";
       status.className = "room-status available";
-      reserveButton.classList.remove("hidden");
-      reserveButton.addEventListener("click", () => quickReserveRoom(room.id));
     } else {
       status.textContent = "Busy";
       status.className = "room-status busy";
@@ -785,7 +785,10 @@ function renderBookings() {
 
     const cancelButton = fragment.querySelector(".booking-cancel-button");
     cancelButton.addEventListener("click", async () => {
-      await cancelBooking(booking.id);
+      const confirmed = await confirmBookingCancellation();
+      if (confirmed) {
+        await cancelBooking(booking.id);
+      }
     });
 
     const emailButton = fragment.querySelector(".booking-email-button");
@@ -1052,6 +1055,32 @@ async function cancelBooking(id) {
   await persistState();
   renderAll();
   showMessage("Reservation cancelled.", true);
+}
+
+function confirmBookingCancellation() {
+  const template = document.getElementById("confirmDialogTemplate");
+  const fragment = template.content.cloneNode(true);
+  const overlay = fragment.querySelector(".confirm-overlay");
+  const yesButton = fragment.querySelector(".confirm-yes-button");
+  const noButton = fragment.querySelector(".confirm-no-button");
+
+  return new Promise((resolve) => {
+    const close = (result) => {
+      overlay.remove();
+      resolve(result);
+    };
+
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) {
+        close(false);
+      }
+    });
+
+    yesButton.addEventListener("click", () => close(true));
+    noButton.addEventListener("click", () => close(false));
+
+    document.body.appendChild(overlay);
+  });
 }
 
 function getRoom(roomId) {
