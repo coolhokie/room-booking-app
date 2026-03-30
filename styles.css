@@ -115,7 +115,7 @@ body::before {
   padding: 14px 16px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.62);
-  border: 1px solid rgba(17, 32, 25, 0.08);
+  border: 2px solid color-mix(in srgb, var(--accent) 58%, white 42%);
   min-width: 120px;
 }
 
@@ -196,7 +196,7 @@ body::before {
 .tab-button {
   width: 100%;
   text-align: left;
-  border: 1px solid rgba(17, 32, 25, 0.08);
+  border: 2px solid color-mix(in srgb, var(--accent) 58%, white 42%);
   background: rgba(255, 255, 255, 0.68);
   color: var(--text);
   padding: 14px 16px;
