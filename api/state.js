@@ -40,7 +40,7 @@ async function readState() {
   const payload = await response.json();
   const value = payload.result;
   if (!value) {
-    return { rooms: [], bookings: [] };
+    return { rooms: [], bookings: [], uploads: [] };
   }
 
   return typeof value === "string" ? JSON.parse(value) : value;

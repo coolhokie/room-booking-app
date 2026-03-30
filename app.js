@@ -31,6 +31,7 @@ const defaultRooms = [
 
 const bookingStorageKey = "office-room-reservations";
 const roomStorageKey = "office-room-directory";
+const uploadStorageKey = "office-kpop-uploads";
 
 const reservationForm = document.getElementById("reservationForm");
 const roomForm = document.getElementById("roomForm");
@@ -62,6 +63,9 @@ const importBrowserDataButton = document.getElementById("importBrowserDataButton
 const bookingDateFilterInput = document.getElementById("bookingDateFilter");
 const bookingRoomFilterInput = document.getElementById("bookingRoomFilter");
 const exportBookingsButton = document.getElementById("exportBookingsButton");
+const kpopUploadInput = document.getElementById("kpopUploadInput");
+const kpopList = document.getElementById("kpopList");
+const kpopMessage = document.getElementById("kpopMessage");
 const next24Button = document.getElementById("next24Button");
 const showAllButton = document.getElementById("showAllButton");
 const historyButton = document.getElementById("historyButton");
@@ -103,6 +107,7 @@ const themeDefinitions = {
 
 let rooms = defaultRooms.map((room) => ({ ...room }));
 let bookings = seedBookings();
+let uploads = [];
 let persistenceMode = "browser";
 let activeFloor = "Floor 1";
 let activeTheme = loadThemePreference();
@@ -137,6 +142,7 @@ importBrowserDataButton.addEventListener("click", handleImportBrowserData);
 bookingDateFilterInput.addEventListener("input", handleBookingFilterChange);
 bookingRoomFilterInput.addEventListener("input", handleBookingFilterChange);
 exportBookingsButton.addEventListener("click", handleExportBookingsToExcel);
+kpopUploadInput.addEventListener("change", handleKpopUpload);
 next24Button.addEventListener("click", () => setBookingViewMode("next24"));
 showAllButton.addEventListener("click", () => setBookingViewMode("all"));
 historyButton.addEventListener("click", () => setBookingViewMode("history"));
@@ -158,19 +164,22 @@ async function initializeApp() {
   if (serverState) {
     rooms = sanitizeRooms(serverState.rooms);
     bookings = sanitizeBookings(serverState.bookings);
+    uploads = sanitizeUploads(serverState.uploads);
     persistenceMode = "server";
 
-    const hasDiskData = rooms.length > 0 || bookings.length > 0;
+    const hasDiskData = rooms.length > 0 || bookings.length > 0 || uploads.length > 0;
     if (!hasDiskData) {
       const migrated = loadLocalBrowserState();
       rooms = migrated.rooms;
       bookings = migrated.bookings;
+      uploads = migrated.uploads;
       await persistState();
     }
   } else {
     const localState = loadLocalBrowserState();
     rooms = localState.rooms;
     bookings = localState.bookings;
+    uploads = localState.uploads;
     persistenceMode = "browser";
   }
 
@@ -311,18 +320,22 @@ function getRelativeDate(offsetDays) {
 function loadLocalBrowserState() {
   const fallbackRooms = defaultRooms.map((room) => ({ ...room }));
   const fallbackBookings = seedBookings();
+  const fallbackUploads = [];
 
   try {
     const savedRooms = JSON.parse(window.localStorage.getItem(roomStorageKey) || "null");
     const savedBookings = JSON.parse(window.localStorage.getItem(bookingStorageKey) || "null");
+    const savedUploads = JSON.parse(window.localStorage.getItem(uploadStorageKey) || "null");
     return {
       rooms: sanitizeRooms(savedRooms && savedRooms.length ? savedRooms : fallbackRooms),
       bookings: sanitizeBookings(savedBookings && savedBookings.length ? savedBookings : fallbackBookings),
+      uploads: sanitizeUploads(savedUploads && savedUploads.length ? savedUploads : fallbackUploads),
     };
   } catch {
     return {
       rooms: fallbackRooms,
       bookings: fallbackBookings,
+      uploads: fallbackUploads,
     };
   }
 }
@@ -338,6 +351,7 @@ async function loadServerState() {
     return {
       rooms: Array.isArray(payload.rooms) ? payload.rooms : [],
       bookings: Array.isArray(payload.bookings) ? payload.bookings : [],
+      uploads: Array.isArray(payload.uploads) ? payload.uploads : [],
     };
   } catch {
     return null;
@@ -351,18 +365,20 @@ async function persistState() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ rooms, bookings }),
+      body: JSON.stringify({ rooms, bookings, uploads }),
     });
     if (!response.ok) {
       throw new Error("State persistence unavailable");
     }
     window.localStorage.setItem(roomStorageKey, JSON.stringify(rooms));
     window.localStorage.setItem(bookingStorageKey, JSON.stringify(bookings));
+    window.localStorage.setItem(uploadStorageKey, JSON.stringify(uploads));
     persistenceMode = "server";
     return true;
   } catch {
     window.localStorage.setItem(roomStorageKey, JSON.stringify(rooms));
     window.localStorage.setItem(bookingStorageKey, JSON.stringify(bookings));
+    window.localStorage.setItem(uploadStorageKey, JSON.stringify(uploads));
     persistenceMode = "browser";
     return false;
   }
@@ -373,6 +389,7 @@ function handleExportData() {
     exportedAt: new Date().toISOString(),
     rooms,
     bookings,
+    uploads,
   };
   const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: "application/json" });
   const url = window.URL.createObjectURL(blob);
@@ -459,7 +476,8 @@ async function handleImportBrowserData() {
   try {
     const savedRooms = JSON.parse(window.localStorage.getItem(roomStorageKey) || "null");
     const savedBookings = JSON.parse(window.localStorage.getItem(bookingStorageKey) || "null");
-    const hasData = (Array.isArray(savedRooms) && savedRooms.length > 0) || (Array.isArray(savedBookings) && savedBookings.length > 0);
+    const savedUploads = JSON.parse(window.localStorage.getItem(uploadStorageKey) || "null");
+    const hasData = (Array.isArray(savedRooms) && savedRooms.length > 0) || (Array.isArray(savedBookings) && savedBookings.length > 0) || (Array.isArray(savedUploads) && savedUploads.length > 0);
 
     if (!hasData) {
       showRecoveryMessage("No browser-stored room or reservation data was found in this app origin.");
@@ -469,6 +487,7 @@ async function handleImportBrowserData() {
     await applyImportedState({
       rooms: savedRooms,
       bookings: savedBookings,
+      uploads: savedUploads,
     });
     showRecoveryMessage("Imported browser-stored rooms and reservations into disk-backed storage.", true);
   } catch {
@@ -479,6 +498,7 @@ async function handleImportBrowserData() {
 async function applyImportedState(payload) {
   rooms = sanitizeRooms(payload.rooms);
   bookings = sanitizeBookings(payload.bookings);
+  uploads = sanitizeUploads(payload.uploads);
   await persistState();
   renderAll();
 }
@@ -651,6 +671,7 @@ function renderAll() {
   renderRooms();
   renderBookings();
   renderCalendar();
+  renderKpopUploads();
   updateNextReservation();
   updateRoomOptions();
   populateBookingRoomFilter();
@@ -1057,6 +1078,72 @@ async function cancelBooking(id) {
   showMessage("Reservation cancelled.", true);
 }
 
+async function handleKpopUpload(event) {
+  const selectedFiles = [...(event.target.files || [])];
+  if (!selectedFiles.length) {
+    return;
+  }
+
+  const uploadedItems = [];
+  for (const file of selectedFiles) {
+    const dataUrl = await readFileAsDataUrl(file);
+    uploadedItems.push({
+      id: crypto.randomUUID(),
+      name: file.name,
+      type: file.type || "application/octet-stream",
+      size: file.size,
+      uploadedAt: new Date().toISOString(),
+      dataUrl,
+    });
+  }
+
+  uploads = sortUploads([...uploadedItems, ...uploads]);
+  await persistState();
+  renderKpopUploads();
+  event.target.value = "";
+  showKpopMessage(`Uploaded ${uploadedItems.length} file${uploadedItems.length === 1 ? "" : "s"}.`, true);
+}
+
+function renderKpopUploads() {
+  if (!kpopList) {
+    return;
+  }
+
+  kpopList.innerHTML = "";
+
+  if (!uploads.length) {
+    kpopList.innerHTML = '<div class="upload-empty">No shared files yet. Upload something to get started.</div>';
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  uploads.forEach((upload) => {
+    const card = document.createElement("article");
+    card.className = "upload-card";
+
+    const preview = upload.type.startsWith("image/")
+      ? `<img src="${escapeHtml(upload.dataUrl)}" alt="${escapeHtml(upload.name)}" class="upload-preview">`
+      : `<div class="upload-file-icon">${escapeHtml(getFileExtensionLabel(upload.name))}</div>`;
+
+    card.innerHTML = `
+      ${preview}
+      <div class="upload-body">
+        <h3>${escapeHtml(upload.name)}</h3>
+        <p class="upload-meta">${escapeHtml(formatFileSize(upload.size))} · ${escapeHtml(formatUploadDate(upload.uploadedAt))}</p>
+        <div class="upload-actions">
+          ${upload.type.startsWith("image/") ? `<a class="ghost-button" href="${escapeHtml(upload.dataUrl)}" target="_blank" rel="noreferrer">View</a>` : ""}
+          <a class="primary-button" href="${escapeHtml(upload.dataUrl)}" download="${escapeHtml(upload.name)}">Download</a>
+        </div>
+      </div>
+    `;
+
+    fragment.appendChild(card);
+  });
+
+  kpopList.appendChild(fragment);
+}
+
 function confirmBookingCancellation() {
   const template = document.getElementById("confirmDialogTemplate");
   const fragment = template.content.cloneNode(true);
@@ -1282,6 +1369,21 @@ function sanitizeBookings(items) {
   }));
 }
 
+function sanitizeUploads(items) {
+  if (!Array.isArray(items) || items.length === 0) {
+    return [];
+  }
+
+  return sortUploads(items.map((upload) => ({
+    id: String(upload.id || crypto.randomUUID()),
+    name: String(upload.name || "Untitled file"),
+    type: String(upload.type || "application/octet-stream"),
+    size: Number(upload.size || 0),
+    uploadedAt: String(upload.uploadedAt || new Date().toISOString()),
+    dataUrl: String(upload.dataUrl || ""),
+  })).filter((upload) => upload.dataUrl));
+}
+
 function showMessage(message, success = false) {
   formMessage.textContent = message;
   formMessage.classList.toggle("success", success);
@@ -1304,6 +1406,11 @@ function showInlineMessage(element, message, success = false) {
 function showRecoveryMessage(message, success = false) {
   recoveryMessage.textContent = message;
   recoveryMessage.classList.toggle("success", success);
+}
+
+function showKpopMessage(message, success = false) {
+  kpopMessage.textContent = message;
+  kpopMessage.classList.toggle("success", success);
 }
 
 function toggleRoomEditor(formElement, buttonElement, isOpen) {
@@ -1552,6 +1659,44 @@ function showSettingsMessage(message, success = false) {
 
 function capitalize(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("File read failed"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function sortUploads(items) {
+  return [...items].sort((first, second) => second.uploadedAt.localeCompare(first.uploadedAt));
+}
+
+function formatFileSize(size) {
+  if (size >= 1024 * 1024) {
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  if (size >= 1024) {
+    return `${Math.round(size / 1024)} KB`;
+  }
+
+  return `${size} B`;
+}
+
+function formatUploadDate(value) {
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+function getFileExtensionLabel(fileName) {
+  const extension = fileName.split(".").pop();
+  return extension ? extension.toUpperCase().slice(0, 4) : "FILE";
 }
 
 function getMonthStart(date) {

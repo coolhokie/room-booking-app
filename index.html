@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -34,11 +34,12 @@
     </header>
 
     <main class="layout">
-      <aside class="panel tabs-panel">
+            <aside class="panel tabs-panel">
         <div class="tabs-nav">
           <button class="tab-button active" type="button" data-tab-target="reserve">Reserve 예약하기</button>
           <button class="tab-button" type="button" data-tab-target="bookings">Bookings 예약한 방</button>
           <button class="tab-button" type="button" data-tab-target="calendar">Calendar 달력</button>
+          <button class="tab-button" type="button" data-tab-target="kpop">K-Pop 케이팝</button>
           <button class="tab-button" type="button" data-tab-target="rooms">Rooms 방 정보</button>
           <button class="tab-button" type="button" data-tab-target="add-room">Add Room 방 만들기</button>
           <button class="tab-button" type="button" data-tab-target="recovery">Recovery 복구</button>
@@ -248,6 +249,20 @@
             <span>Sat</span>
           </div>
           <div id="calendarGrid" class="calendar-grid"></div>
+        </section>
+
+        <section class="panel panel-kpop tab-section" data-tab-panel="kpop">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Shared Files</p>
+              <h2>K-Pop</h2>
+            </div>
+            <label class="primary-button file-label" for="kpopUploadInput">Upload files</label>
+          </div>
+          <input id="kpopUploadInput" type="file" multiple hidden>
+          <p class="subtle">Upload photos or files so others can view or download them from this page.</p>
+          <p id="kpopMessage" class="form-message" aria-live="polite"></p>
+          <div id="kpopList" class="upload-grid"></div>
         </section>
 
         <section class="panel panel-recovery tab-section" data-tab-panel="recovery">
@@ -467,3 +482,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+
