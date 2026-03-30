@@ -1,4 +1,4 @@
-const defaultRooms = [
+﻿const defaultRooms = [
   {
     id: "atlas",
     name: "Atlas",
@@ -1122,22 +1122,53 @@ function renderKpopUploads() {
     const card = document.createElement("article");
     card.className = "upload-card";
 
-    const preview = upload.type.startsWith("image/")
-      ? `<img src="${escapeHtml(upload.dataUrl)}" alt="${escapeHtml(upload.name)}" class="upload-preview">`
-      : `<div class="upload-file-icon">${escapeHtml(getFileExtensionLabel(upload.name))}</div>`;
+    if (upload.type.startsWith("image/")) {
+      const previewImage = document.createElement("img");
+      previewImage.className = "upload-preview";
+      previewImage.src = upload.dataUrl;
+      previewImage.alt = upload.name;
+      card.appendChild(previewImage);
+    } else {
+      const fileIcon = document.createElement("div");
+      fileIcon.className = "upload-file-icon";
+      fileIcon.textContent = getFileExtensionLabel(upload.name);
+      card.appendChild(fileIcon);
+    }
 
-    card.innerHTML = `
-      ${preview}
-      <div class="upload-body">
-        <h3>${escapeHtml(upload.name)}</h3>
-        <p class="upload-meta">${escapeHtml(formatFileSize(upload.size))} · ${escapeHtml(formatUploadDate(upload.uploadedAt))}</p>
-        <div class="upload-actions">
-          ${upload.type.startsWith("image/") ? `<a class="ghost-button" href="${escapeHtml(upload.dataUrl)}" target="_blank" rel="noreferrer">View</a>` : ""}
-          <a class="primary-button" href="${escapeHtml(upload.dataUrl)}" download="${escapeHtml(upload.name)}">Download</a>
-        </div>
-      </div>
-    `;
+    const body = document.createElement("div");
+    body.className = "upload-body";
 
+    const title = document.createElement("h3");
+    title.textContent = upload.name;
+    body.appendChild(title);
+
+    const meta = document.createElement("p");
+    meta.className = "upload-meta";
+    meta.textContent = `${formatFileSize(upload.size)} · ${formatUploadDate(upload.uploadedAt)}`;
+    body.appendChild(meta);
+
+    const actions = document.createElement("div");
+    actions.className = "upload-actions";
+
+    if (upload.type.startsWith("image/")) {
+      const viewLink = document.createElement("a");
+      viewLink.className = "ghost-button";
+      viewLink.href = upload.dataUrl;
+      viewLink.target = "_blank";
+      viewLink.rel = "noreferrer";
+      viewLink.textContent = "View";
+      actions.appendChild(viewLink);
+    }
+
+    const downloadLink = document.createElement("a");
+    downloadLink.className = "primary-button";
+    downloadLink.href = upload.dataUrl;
+    downloadLink.download = upload.name;
+    downloadLink.textContent = "Download";
+    actions.appendChild(downloadLink);
+
+    body.appendChild(actions);
+    card.appendChild(body);
     fragment.appendChild(card);
   });
 
@@ -1583,7 +1614,7 @@ function renderBookingPagination(totalItems) {
     bookingCurrentPage = totalPages;
   }
 
-  bookingPagination.appendChild(createBookingPaginationButton("←", bookingCurrentPage === 1, () => {
+  bookingPagination.appendChild(createBookingPaginationButton("â†", bookingCurrentPage === 1, () => {
     bookingCurrentPage -= 1;
     renderBookings();
   }));
@@ -1597,7 +1628,7 @@ function renderBookingPagination(totalItems) {
     bookingPagination.appendChild(button);
   }
 
-  bookingPagination.appendChild(createBookingPaginationButton("→", bookingCurrentPage === totalPages, () => {
+  bookingPagination.appendChild(createBookingPaginationButton("â†’", bookingCurrentPage === totalPages, () => {
     bookingCurrentPage += 1;
     renderBookings();
   }));
@@ -1793,3 +1824,4 @@ function getWeatherLabel(weatherCode) {
 
   return labels[weatherCode] || "Current conditions";
 }
+
