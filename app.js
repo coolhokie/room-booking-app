@@ -66,6 +66,7 @@ const exportBookingsButton = document.getElementById("exportBookingsButton");
 const kpopUploadInput = document.getElementById("kpopUploadInput");
 const kpopList = document.getElementById("kpopList");
 const kpopMessage = document.getElementById("kpopMessage");
+const imageViewerTemplate = document.getElementById("imageViewerTemplate");
 const next24Button = document.getElementById("next24Button");
 const showAllButton = document.getElementById("showAllButton");
 const historyButton = document.getElementById("historyButton");
@@ -1150,15 +1151,14 @@ function renderKpopUploads() {
     const actions = document.createElement("div");
     actions.className = "upload-actions";
 
-    if (upload.type.startsWith("image/")) {
-      const viewLink = document.createElement("a");
-      viewLink.className = "ghost-button";
-      viewLink.href = upload.dataUrl;
-      viewLink.target = "_blank";
-      viewLink.rel = "noreferrer";
-      viewLink.textContent = "View";
-      actions.appendChild(viewLink);
-    }
+      if (upload.type.startsWith("image/")) {
+        const viewLink = document.createElement("button");
+        viewLink.className = "ghost-button";
+        viewLink.type = "button";
+        viewLink.textContent = "View";
+        viewLink.addEventListener("click", () => openImageViewer(upload));
+        actions.appendChild(viewLink);
+      }
 
     const downloadLink = document.createElement("a");
     downloadLink.className = "primary-button";
@@ -1442,6 +1442,43 @@ function showRecoveryMessage(message, success = false) {
 function showKpopMessage(message, success = false) {
   kpopMessage.textContent = message;
   kpopMessage.classList.toggle("success", success);
+}
+
+function openImageViewer(upload) {
+  if (!imageViewerTemplate || !upload?.dataUrl) {
+    return;
+  }
+
+  const fragment = imageViewerTemplate.content.cloneNode(true);
+  const overlay = fragment.querySelector(".image-viewer-overlay");
+  const title = fragment.querySelector("#imageViewerTitle");
+  const image = fragment.querySelector(".image-viewer-image");
+  const closeButton = fragment.querySelector(".image-viewer-close");
+
+  const closeViewer = () => {
+    document.removeEventListener("keydown", handleKeyDown);
+    overlay.remove();
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape") {
+      closeViewer();
+    }
+  };
+
+  title.textContent = upload.name;
+  image.src = upload.dataUrl;
+  image.alt = upload.name;
+
+  overlay.addEventListener("click", (event) => {
+    if (event.target === overlay) {
+      closeViewer();
+    }
+  });
+
+  closeButton.addEventListener("click", closeViewer);
+  document.addEventListener("keydown", handleKeyDown);
+  document.body.appendChild(fragment);
 }
 
 function toggleRoomEditor(formElement, buttonElement, isOpen) {
