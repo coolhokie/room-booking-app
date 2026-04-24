@@ -1812,7 +1812,7 @@ function updateLiveDateTime() {
 
 async function loadSeoulWeather() {
   try {
-    const response = await window.fetch("https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weather_code&temperature_unit=celsius&timezone=Asia%2FSeoul");
+    const response = await window.fetch("https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=Asia%2FSeoul");
     if (!response.ok) {
       throw new Error("Weather request failed");
     }
@@ -1821,7 +1821,7 @@ async function loadSeoulWeather() {
     const current = payload.current || {};
     const temperature = current.temperature_2m;
     const weatherCode = current.weather_code;
-    liveWeatherDetails.textContent = `${getWeatherLabel(weatherCode)} - ${temperature}\u00B0C`;
+    liveWeatherDetails.textContent = `${getWeatherLabel(weatherCode)} - ${temperature}\u00B0F`;
   } catch {
     liveWeatherDetails.textContent = "Weather unavailable right now.";
   }
