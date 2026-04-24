@@ -1793,8 +1793,8 @@ function startLiveClock() {
 }
 
 function startWeatherRefresh() {
-  loadCentrevilleWeather();
-  window.setInterval(loadCentrevilleWeather, 5 * 60 * 1000);
+  loadSeoulWeather();
+  window.setInterval(loadSeoulWeather, 5 * 60 * 1000);
 }
 
 function updateLiveDateTime() {
@@ -1806,13 +1806,13 @@ function updateLiveDateTime() {
     hour: "numeric",
     minute: "2-digit",
     second: "2-digit",
-    timeZone: "America/New_York",
+      timeZone: "Asia/Seoul",
   }).format(now);
 }
 
-async function loadCentrevilleWeather() {
+async function loadSeoulWeather() {
   try {
-    const response = await window.fetch("https://api.open-meteo.com/v1/forecast?latitude=38.840349&longitude=-77.428901&current=temperature_2m,weather_code&temperature_unit=fahrenheit&timezone=America%2FNew_York");
+    const response = await window.fetch("https://api.open-meteo.com/v1/forecast?latitude=37.5665&longitude=126.9780&current=temperature_2m,weather_code&temperature_unit=celsius&timezone=Asia%2FSeoul");
     if (!response.ok) {
       throw new Error("Weather request failed");
     }
@@ -1821,7 +1821,7 @@ async function loadCentrevilleWeather() {
     const current = payload.current || {};
     const temperature = current.temperature_2m;
     const weatherCode = current.weather_code;
-    liveWeatherDetails.textContent = `${getWeatherLabel(weatherCode)} - ${temperature}\u00B0F`;
+    liveWeatherDetails.textContent = `${getWeatherLabel(weatherCode)} - ${temperature}\u00B0C`;
   } catch {
     liveWeatherDetails.textContent = "Weather unavailable right now.";
   }
